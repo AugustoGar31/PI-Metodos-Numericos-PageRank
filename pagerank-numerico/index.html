@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PageRank Studio: Gauss-Seidel vs Factorización LU | Métodos Numéricos</title>
-  <meta name="description" content="Sistema interactivo para modelar el algoritmo PageRank mediante sistemas lineales A·r = b y contrastar el Método Iterativo de Gauss-Seidel con la Factorización LU de Doolittle.">
+  <title>PageRank: Modelado Numérico en Ingeniería | Gauss-Seidel vs LU</title>
+  <meta name="description" content="Sistema interactivo dual: Simulador de PageRank como sistema lineal A·r = b y Presentación para Defensa Oral de 15 Minutos con renderizado matemático KaTeX.">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -27,6 +27,13 @@
     };
   </script>
 
+  <!-- KaTeX CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+
+  <!-- KaTeX JS y Extensión Auto-render -->
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
   <!-- Vis-Network CDN -->
   <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 
@@ -38,33 +45,47 @@
 </head>
 <body class="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-sky-500 selection:text-white">
 
-  <!-- TOP BAR -->
-  <header class="glass-header sticky top-0 z-50 px-4 lg:px-6 py-3">
-    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+  <!-- TOP NAVBAR GLOBAL (Fijo y accesible en todo momento) -->
+  <header class="glass-header sticky top-0 z-50 px-4 lg:px-6 py-2.5">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
       
-      <!-- Brand & Project Title -->
+      <!-- Marca e Identidad -->
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20 text-white font-extrabold text-xl">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 via-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-sky-500/20 text-white font-black text-lg tracking-wider">
           PR
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="font-heading font-bold text-lg lg:text-xl tracking-tight text-white">
-              PageRank Studio <span class="text-xs px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30 font-mono">v2026.2</span>
+            <h1 class="font-heading font-bold text-base lg:text-lg tracking-tight text-white">
+              PageRank: Modelado Numérico en Ingeniería
             </h1>
+            <span class="text-[11px] px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-300 border border-sky-500/30 font-mono hidden sm:inline-block">
+              Métodos Numéricos 2026-2
+            </span>
           </div>
-          <p class="text-xs text-slate-400">
-            Comparación Numérica: <span class="text-sky-400 font-medium">Gauss-Seidel</span> vs <span class="text-indigo-400 font-medium">Factorización LU</span> • Métodos Numéricos
+          <p class="text-[11px] text-slate-400 hidden sm:block">
+            Resolución Canónica <span class="text-sky-400 font-medium">A·r = b</span> • <span class="text-sky-300">Gauss-Seidel</span> vs <span class="text-indigo-400">Factorización LU</span>
           </p>
         </div>
       </div>
 
-      <!-- Quick Action Controls -->
-      <div class="flex items-center flex-wrap gap-2 lg:gap-3">
-        <!-- Preset Selector -->
-        <div class="relative">
-          <label for="preset-select" class="sr-only">Seleccionar Red Predefinida</label>
-          <select id="preset-select" class="bg-slate-900 border border-slate-700 hover:border-slate-600 rounded-lg text-xs lg:text-sm px-3 py-2 text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all cursor-pointer">
+      <!-- SELECTOR DE VISTA DUAL (SIMULADOR vs EXPOSICIÓN ORAL) -->
+      <nav class="flex items-center bg-slate-900/90 p-1 rounded-xl border border-slate-800 shadow-inner">
+        <button id="nav-btn-lab" type="button" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all text-sky-400 bg-sky-500/20 shadow-sm border border-sky-500/30">
+          <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+          <span>Simulador Numérico</span>
+        </button>
+        <button id="nav-btn-presentation" type="button" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all text-slate-400 hover:text-slate-200">
+          <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"></path></svg>
+          <span>Exposición Oral</span>
+        </button>
+      </nav>
+
+      <!-- ACCIONES GLOBALES RÁPIDAS -->
+      <div class="flex items-center gap-2">
+        <!-- Preset Selector (Accesible en Lab) -->
+        <div id="top-preset-container" class="relative hidden md:block">
+          <select id="preset-select" class="bg-slate-900 border border-slate-700 hover:border-slate-600 rounded-lg text-xs px-2.5 py-1.5 text-slate-200 focus:outline-none focus:ring-1 focus:ring-sky-500 transition-all cursor-pointer">
             <option value="catedra4">⭐ Caso Cátedra (4 Nodos)</option>
             <option value="starHub">🌟 Red Centralizada (Hub / Estrella)</option>
             <option value="spiderTrap">🕸️ Trampa de Enlaces (Spider Trap)</option>
@@ -73,212 +94,1009 @@
           </select>
         </div>
 
-        <!-- Random Preset Button -->
-        <button id="btn-random-graph" type="button" title="Generar Red Aleatoria" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-2 rounded-lg text-xs lg:text-sm font-medium flex items-center gap-1.5 transition-all">
-          <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-          </svg>
-          <span class="hidden sm:inline">Aleatorio</span>
+        <!-- Botón Calcular Primario -->
+        <button id="btn-calculate" type="button" class="bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-semibold px-3 py-1.5 rounded-lg text-xs shadow-md shadow-sky-500/20 flex items-center gap-1.5 transition-all transform active:scale-95">
+          <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
+          <span class="hidden sm:inline">Calcular PageRank</span>
+          <span class="sm:hidden">Calcular</span>
         </button>
 
-        <!-- Execute Calculation Button (Primary CTA) -->
-        <button id="btn-calculate" type="button" class="bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-semibold px-4 py-2 rounded-lg text-xs lg:text-sm shadow-lg shadow-sky-500/25 flex items-center gap-2 transition-all transform active:scale-95">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
-          </svg>
-          <span>Calcular PageRank</span>
+        <!-- Toggle Pantalla Completa (Proyector) -->
+        <button id="btn-toggle-fullscreen" type="button" title="Pantalla Completa para Proyección" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 p-2 rounded-lg text-xs transition-all">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
         </button>
 
-        <!-- Team Info Button -->
+        <!-- Botón Integrantes -->
         <button id="btn-open-team" type="button" title="Información del Proyecto e Integrantes" class="bg-slate-800 hover:bg-slate-700 text-slate-300 p-2 rounded-lg border border-slate-700 transition-all">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
         </button>
       </div>
 
     </div>
   </header>
 
-  <!-- MAIN WORKSPACE -->
+  <!-- CONTENIDO PRINCIPAL: ARQUITECTURA DUAL -->
   <main class="max-w-7xl mx-auto w-full px-4 lg:px-6 py-4 flex-1 flex flex-col gap-5">
 
-    <!-- TOP SECTION: CONTROLS & GRAPH INTERACTIVE CANVAS -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+    <!-- ==============================================================
+         VISTA 1: MODO EXPOSICIÓN ORAL CON RENDERIZADO KATEX
+         ============================================================== -->
+    <section id="presentation-section" class="hidden flex-col gap-4">
 
-      <!-- LEFT COLUMN: ALGORITHM CONTROLS & MATRIX INSPECTION (4 cols) -->
-      <aside class="lg:col-span-4 flex flex-col gap-4">
-
-        <!-- Card: Parámetros del Algoritmo -->
-        <div class="glass-panel rounded-2xl p-4 shadow-xl border border-slate-800 flex flex-col gap-4">
-          <div class="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
-            <h2 class="font-heading font-semibold text-sm uppercase tracking-wider text-slate-300 flex items-center gap-2">
-              <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
-              </svg>
-              Parámetros del Algoritmo
-            </h2>
-            <span class="text-[11px] text-slate-400 font-mono">A·r = b</span>
-          </div>
-
-          <!-- Damping Factor Slider -->
-          <div class="flex flex-col gap-1.5">
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-slate-300 font-medium">Factor de Amortiguamiento (d):</span>
-              <span id="label-damping-value" class="font-mono font-bold text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded border border-sky-500/20">0.85</span>
-            </div>
-            <input id="input-damping" type="range" min="0.10" max="0.99" step="0.01" value="0.85" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-sky-500">
-            <div class="flex justify-between text-[10px] text-slate-500 font-mono">
-              <span>0.10 (Alta teletransportación)</span>
-              <span id="label-teleport-rate" class="text-slate-400">Teletransporte: 15%</span>
-              <span>0.99 (Poco teletransporte)</span>
-            </div>
-          </div>
-
-          <!-- Tolerancia Gauss-Seidel -->
-          <div class="grid grid-cols-2 gap-3">
-            <div class="flex flex-col gap-1">
-              <label for="select-tolerance" class="text-xs text-slate-300 font-medium">Tolerancia (ε):</label>
-              <select id="select-tolerance" class="bg-slate-900 border border-slate-700 rounded-lg text-xs p-2 text-slate-200 focus:ring-1 focus:ring-sky-500">
-                <option value="1e-4">10⁻⁴ (0.0001)</option>
-                <option value="1e-5" selected>10⁻⁵ (0.00001)</option>
-                <option value="1e-6">10⁻⁶ (0.000001)</option>
-                <option value="1e-7">10⁻⁷ (0.0000001)</option>
-                <option value="1e-8">10⁻⁸ (0.00000001)</option>
-              </select>
-            </div>
-
-            <!-- Iteraciones Máximas -->
-            <div class="flex flex-col gap-1">
-              <label for="input-max-iter" class="text-xs text-slate-300 font-medium">Iteraciones Máx:</label>
-              <input id="input-max-iter" type="number" min="5" max="500" value="100" class="bg-slate-900 border border-slate-700 rounded-lg text-xs p-2 text-slate-200 focus:ring-1 focus:ring-sky-500 font-mono">
-            </div>
-          </div>
-
-          <!-- Vector Inicial x0 -->
-          <div class="flex flex-col gap-1">
-            <div class="flex justify-between items-center text-xs">
-              <span class="text-slate-300 font-medium">Vector Inicial x⁽⁰⁾:</span>
-              <span class="text-[10px] text-slate-400 font-mono">Equiprobable [1/N]</span>
-            </div>
-            <div class="text-[11px] text-slate-400 bg-slate-900/80 p-2 rounded border border-slate-800">
-              Cada componente se inicia en <span id="label-initial-x0" class="font-mono text-sky-400">rᵢ⁽⁰⁾ = 0.250000</span>
-            </div>
-          </div>
-
+      <!-- Barra Superior de Navegación de Diapositivas -->
+      <div class="glass-panel rounded-2xl p-3 border border-slate-800 flex flex-wrap items-center justify-between gap-3 shadow-xl">
+        <div class="flex items-center gap-3">
+          <span id="slide-block-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+            Bloque 1: Fundamento Teórico
+          </span>
+          <span id="slide-number-badge" class="font-mono text-xs font-bold text-slate-300 bg-slate-900 px-2.5 py-0.5 rounded-md border border-slate-800">
+            1 / 9
+          </span>
         </div>
 
-        <!-- Card: Inspección Matricial del Sistema Lineal -->
-        <div class="glass-panel rounded-2xl p-4 shadow-xl border border-slate-800 flex flex-col gap-3 flex-1">
-          <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
-            <h2 class="font-heading font-semibold text-sm uppercase tracking-wider text-slate-300 flex items-center gap-2">
-              <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-              </svg>
-              Inspección de Matrices
-            </h2>
-            <!-- Switch Matrix A / M / b -->
-            <div class="flex bg-slate-900 rounded-lg p-0.5 border border-slate-800 text-[11px] font-mono">
-              <button id="tab-mat-A" type="button" class="px-2 py-0.5 rounded text-sky-400 bg-sky-500/20 font-semibold transition-all">A = I-dM</button>
-              <button id="tab-mat-M" type="button" class="px-2 py-0.5 rounded text-slate-400 hover:text-slate-200 transition-all">M</button>
-              <button id="tab-vec-b" type="button" class="px-2 py-0.5 rounded text-slate-400 hover:text-slate-200 transition-all">b</button>
-            </div>
+        <!-- Indicador de Progreso Visual de la Presentación -->
+        <div class="flex-1 max-w-xs mx-4 hidden md:block">
+          <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden border border-slate-800">
+            <div id="slide-progress-bar" class="bg-gradient-to-r from-sky-400 via-indigo-500 to-purple-500 h-1.5 transition-all duration-300" style="width: 11.11%;"></div>
           </div>
-
-          <!-- Diagonal Dominance Badge Indicator -->
-          <div id="badge-dominance-status" class="p-2.5 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-xs flex items-start gap-2">
-            <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <div class="text-[11px] leading-relaxed">
-              <strong class="font-semibold block">Convergencia Garantizada</strong>
-              <span id="text-dominance-desc">La matriz A es estrictamente diagonal dominante por columnas y su radio espectral cumple ρ(T_GS) ≤ d &lt; 1.</span>
-            </div>
-          </div>
-
-          <!-- Matrix Table Display Area -->
-          <div class="relative overflow-auto max-h-[190px] rounded-lg border border-slate-800 bg-slate-950/60 p-2">
-            <div id="matrix-display-container" class="font-mono text-xs flex justify-center items-center min-h-[120px]">
-              <span class="text-slate-500">Cargando matriz...</span>
-            </div>
-          </div>
-
         </div>
 
-      </aside>
+        <!-- Botones de Navegación Diapositivas -->
+        <div class="flex items-center gap-2">
+          <button id="btn-prev-slide" type="button" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1 transition-all">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            <span>Anterior</span>
+          </button>
+          <button id="btn-next-slide" type="button" class="bg-sky-600 hover:bg-sky-500 text-white font-semibold px-4 py-1.5 rounded-lg text-xs flex items-center gap-1 transition-all shadow-md shadow-sky-600/20">
+            <span>Siguiente</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+          </button>
+        </div>
+      </div>
 
-      <!-- CENTER/RIGHT COLUMN: INTERACTIVE GRAPH CANVAS (8 cols) -->
-      <section class="lg:col-span-8 flex flex-col gap-4">
+      <!-- VIEWPORT DE LAS 9 DIAPOSITIVAS -->
+      <div id="presentation-slides-container" class="presentation-viewport glass-panel rounded-3xl p-6 lg:p-10 border border-slate-800 shadow-2xl relative flex items-center justify-center overflow-hidden">
 
-        <!-- Card: Visor de Grafo Interactivo -->
-        <div class="glass-panel rounded-2xl p-4 shadow-xl border border-slate-800 flex flex-col gap-3">
-          
-          <!-- Graph Header & Toolbar -->
-          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
-            <div class="flex items-center gap-3">
-              <h2 class="font-heading font-semibold text-base text-white flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                Topología de la Red Web
-              </h2>
-              <span id="badge-network-stats" class="text-xs bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full border border-slate-700 font-mono">
-                4 Páginas • 7 Enlaces
+        <!-- ==========================================
+             SLIDE 1: PORTADA DE PELÍCULA (ACTO 1)
+             ========================================== -->
+        <article class="presentation-slide flex flex-col gap-6 max-w-4xl mx-auto w-full my-auto text-center">
+          <div class="inline-flex items-center gap-2 mx-auto px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-mono tracking-wider">
+            <span>🎬 CASO DE ESTUDIO REAL • MÉTODOS NUMÉRICOS 2026-2</span>
+          </div>
+
+          <h2 class="font-heading font-black text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight leading-tight">
+            ¿Cómo dos estudiantes en un dormitorio
+            <span class="block bg-gradient-to-r from-sky-400 via-indigo-400 to-amber-300 bg-clip-text text-transparent">
+              ordenaron todo internet?
+            </span>
+          </h2>
+
+          <p class="text-slate-300 text-lg lg:text-xl max-w-2xl mx-auto leading-relaxed">
+            La historia real de <strong class="text-white">PageRank</strong>: de la crisis del spam en 1996 al poder transformador de los <strong class="text-sky-400">Métodos Numéricos</strong>.
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 text-left">
+            <div class="story-card p-5 rounded-2xl flex flex-col gap-1.5 border-amber-500/20">
+              <span class="text-xs text-amber-400 font-mono font-bold flex items-center gap-1.5">
+                <span>🏛️</span> Cátedra Oficial
               </span>
+              <strong class="text-base font-semibold text-white">Taller de Métodos Numéricos</strong>
+              <p class="text-xs text-slate-300 leading-relaxed">Ciclo Lectivo 2026-2 • Defensa oral y práctica de Proyecto Integrador.</p>
             </div>
 
-            <!-- Graph Canvas Controls -->
-            <div class="flex flex-wrap items-center gap-1.5">
-              <button id="btn-add-node" type="button" class="bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 hover:border-sky-500/50 px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1 transition-all">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                <span>+ Página</span>
-              </button>
+            <div class="story-card p-5 rounded-2xl flex flex-col gap-1.5 border-sky-500/20">
+              <span class="text-xs text-sky-400 font-mono font-bold flex items-center gap-1.5">
+                <span>💡</span> Los Creadores
+              </span>
+              <strong class="text-base font-semibold text-white">Larry Page & Sergey Brin</strong>
+              <p class="text-xs text-slate-300 leading-relaxed">Stanford, 1996: de tesis doctoral a la base del motor de Google.</p>
+            </div>
 
-              <button id="btn-add-edge" type="button" class="bg-slate-800 hover:bg-slate-700 text-indigo-400 border border-slate-700 hover:border-indigo-500/50 px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1 transition-all">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
-                <span>+ Enlace</span>
-              </button>
+            <div class="story-card p-5 rounded-2xl flex flex-col gap-1.5 border-purple-500/20">
+              <span class="text-xs text-purple-400 font-mono font-bold flex items-center gap-1.5">
+                <span>👥</span> Equipo Expositor
+              </span>
+              <strong class="text-base font-semibold text-white">Integrantes del Proyecto</strong>
+              <p class="text-xs text-slate-300 leading-relaxed">Exposición interactiva y simulación computacional en vivo.</p>
+            </div>
+          </div>
+        </article>
 
-              <button id="btn-delete-selected" type="button" class="bg-slate-800 hover:bg-rose-900/40 text-rose-400 border border-slate-700 hover:border-rose-500/50 px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1 transition-all" title="Eliminar nodo o enlace seleccionado">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                <span>Eliminar</span>
-              </button>
+        <!-- ==========================================
+             SLIDE 2: INTERNET EN 1996 ERA UN CAOS (ACTO 1)
+             ========================================== -->
+        <article class="presentation-slide hidden flex-col gap-6 max-w-4xl mx-auto w-full my-auto">
+          <div class="border-b border-slate-800 pb-3">
+            <span class="text-xs font-mono text-amber-400 uppercase tracking-wider block">Acto 1: El Gran Problema</span>
+            <h3 class="font-heading font-black text-2xl lg:text-3xl text-white">Internet en 1996 era un Caos Total</h3>
+          </div>
 
-              <button id="btn-fit-network" type="button" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all" title="Centrar grafo">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
-              </button>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div class="story-card p-6 rounded-2xl flex flex-col gap-3">
+              <div class="flex items-center gap-2 text-rose-400 font-bold text-base">
+                <span>👴</span>
+                <span>Los Motores Viejos (Yahoo! y Altavista)</span>
+              </div>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                <strong>Yahoo!</strong> contrataba personas para clasificar sitios web a mano, ¡como una guía telefónica de papel! Por su parte, <strong>Altavista</strong> solo contaba cuántas veces aparecía una palabra en la página.
+              </p>
+              <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 text-xs text-slate-400 font-mono">
+                Buscar "universidad" = millones de resultados desordenados.
+              </div>
+            </div>
 
-              <!-- Toggle Física -->
-              <label class="flex items-center gap-1.5 text-xs text-slate-400 cursor-pointer pl-1">
-                <input id="toggle-physics" type="checkbox" checked class="w-3.5 h-3.5 accent-sky-500 rounded bg-slate-900 border-slate-700">
-                <span>Física</span>
-              </label>
+            <div class="story-card p-6 rounded-2xl flex flex-col gap-3">
+              <div class="flex items-center gap-2 text-amber-400 font-bold text-base">
+                <span>🚨</span>
+                <span>La Trampa del Spam Invisible</span>
+              </div>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                Si un sitio ponía la palabra <span class="text-amber-300 font-mono">"autos autos autos..."</span> 500 veces en <em>texto blanco sobre fondo blanco</em>, los buscadores viejos lo ponían <strong>número 1 en el ranking</strong>.
+              </p>
+              <div class="p-3 rounded-xl bg-rose-950/30 border border-rose-500/30 text-xs text-rose-300 font-semibold">
+                ¡El contenido del texto no era una fuente confiable!
+              </div>
             </div>
           </div>
 
-          <!-- Canvas Vis-Network Container -->
-          <div class="relative w-full h-[370px] rounded-xl overflow-hidden border border-slate-800">
-            <div id="network-container" class="w-full h-full"></div>
+          <div class="story-quote p-5 flex flex-col gap-2">
+            <span class="text-xs uppercase font-mono text-sky-400 font-bold">La Pregunta que Cambió la Historia:</span>
+            <p class="text-base lg:text-lg text-white font-medium italic">
+              "Si no podemos confiar en lo que escribe el dueño de una página... ¿en qué podemos confiar?"
+            </p>
+            <p class="text-sm text-slate-300">
+              👉 <strong>La web no es una biblioteca de libros aislados... es una red social de páginas que hablan entre sí mediante hipervínculos.</strong>
+            </p>
+          </div>
+        </article>
 
-            <!-- Overlay Legend for PageRank intensity -->
-            <div class="absolute bottom-3 left-3 bg-slate-950/85 backdrop-blur-md px-3 py-2 rounded-lg border border-slate-800/80 text-[11px] text-slate-300 flex items-center gap-3 shadow-lg pointer-events-none">
-              <span class="font-medium text-slate-400">Importancia PageRank:</span>
-              <div class="flex items-center gap-1.5">
-                <span class="w-2.5 h-2.5 rounded-full bg-sky-600"></span>
-                <span>Bajo</span>
+        <!-- ==========================================
+             SLIDE 3: LA IDEA GENIAL DE STANFORD (ACTO 1)
+             ========================================== -->
+        <article class="presentation-slide hidden flex-col gap-6 max-w-4xl mx-auto w-full my-auto">
+          <div class="border-b border-slate-800 pb-3">
+            <span class="text-xs font-mono text-sky-400 uppercase tracking-wider block">Acto 1: La Revelación</span>
+            <h3 class="font-heading font-black text-2xl lg:text-3xl text-white">La Idea Genial: La Web como una Red de Confianza</h3>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div class="story-card p-6 rounded-2xl flex flex-col gap-3">
+              <div class="flex items-center gap-2 text-sky-400 font-bold text-base">
+                <span>🔬</span>
+                <span>La Inspiración en la Ciencia Académica</span>
               </div>
-              <div class="flex items-center gap-1.5">
-                <span class="w-3 h-3 rounded-full bg-violet-600"></span>
-                <span>Medio</span>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                ¿Cómo sabemos en la universidad si un paper de física de Einstein o Newton es importante? <strong>No por cuántas palabras tiene</strong>, sino por <strong>cuántos otros científicos lo citan en sus investigaciones</strong>.
+              </p>
+              <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 text-xs text-sky-300 font-mono">
+                Cita académica = Voto de prestigio y autoridad
               </div>
-              <div class="flex items-center gap-1.5">
-                <span class="w-4 h-4 rounded-full bg-amber-500 ring-2 ring-yellow-400/50"></span>
-                <span class="font-bold text-amber-300">Líder (#1)</span>
+            </div>
+
+            <div class="story-card p-6 rounded-2xl flex flex-col gap-3">
+              <div class="flex items-center gap-2 text-emerald-400 font-bold text-base">
+                <span>🔗</span>
+                <span>La Gran Metáfora del Hipervínculo</span>
+              </div>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                Larry Page y Sergey Brin aplicaron esto a internet: un enlace $A \to B$ no es solo un botón azul... <strong>¡es un voto de confianza democrático!</strong> Si una página te enlaza, te está recomendando formalmente.
+              </p>
+              <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 text-xs text-emerald-300 font-mono">
+                Página Enlazada = Página Recomendada
               </div>
             </div>
           </div>
 
-          <!-- Bottom bar of Canvas: Live Ranking Quick Summary -->
-          <div id="ranking-summary-bar" class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
-            <!-- Will be populated dynamically by app.js -->
+          <!-- Dilema Central -->
+          <div class="p-5 rounded-2xl bg-amber-950/20 border border-amber-500/30 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center shrink-0 text-2xl">
+              ⚖️
+            </div>
+            <div class="flex flex-col gap-1 text-sm text-slate-300">
+              <strong class="text-white text-base font-bold">Pero surge un dilema fundamental: ¿Todos los votos valen lo mismo?</strong>
+              <p>
+                ¡Por supuesto que no! Un enlace desde el blog de mi vecino no tiene el mismo peso que un enlace desde la portada de <strong>Wikipedia</strong>, la <strong>BBC</strong> o la <strong>NASA</strong>.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             SLIDE 4: LA PARADOJA DEL HUEVO Y LA GALLINA (ACTO 2)
+             ========================================== -->
+        <article class="presentation-slide hidden flex-col gap-6 max-w-4xl mx-auto w-full my-auto">
+          <div class="border-b border-slate-800 pb-3">
+            <span class="text-xs font-mono text-indigo-400 uppercase tracking-wider block">Acto 2: La Intuición Numérica</span>
+            <h3 class="font-heading font-black text-2xl lg:text-3xl text-white">La Paradoja del Huevo y la Gallina</h3>
+          </div>
+
+          <!-- Cuadro de la Paradoja Circular -->
+          <div class="story-card p-5 rounded-2xl border-indigo-500/30 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 text-indigo-300 flex items-center justify-center shrink-0 text-2xl">
+              🔄
+            </div>
+            <div class="text-sm lg:text-base text-slate-200 leading-relaxed">
+              <strong>La Trampa Circular:</strong> Para saber la importancia de tu página, necesito saber la importancia de quienes te votan. Pero para saber la de ellos... <em>¡necesito saber quién los vota a ellos!</em>
+            </div>
+          </div>
+
+          <div class="text-center font-bold text-sky-400 text-sm uppercase tracking-wider">
+            ¿Cómo se resuelve una paradoja circular en ingeniería? 👉 <strong>¡Iterando con Métodos Numéricos!</strong>
+          </div>
+
+          <!-- La Analogía del Agua y los Vasos Comunicantes -->
+          <div class="analogy-water p-6 rounded-3xl flex flex-col gap-3 text-slate-200">
+            <div class="flex items-center gap-2 text-sky-300 font-bold text-lg">
+              <span>🌊</span>
+              <span>La Analogía del Agua y los Vasos Comunicantes</span>
+            </div>
+            <p class="text-sm lg:text-base leading-relaxed text-slate-300">
+              Imaginen que cada página web es un <strong>vaso con agua</strong> conectado a otros por <strong>tubos (los enlaces)</strong>:
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs">
+              <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
+                <strong class="text-sky-400 block mb-1">1. Arranque Parejo</strong>
+                Todos los vasos arrancan con la misma cantidad de agua equiprobable ($1/N$).
+              </div>
+              <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
+                <strong class="text-sky-400 block mb-1">2. Abrimos las Canillas</strong>
+                El agua fluye a través de los tubos según hacia dónde apuntan los enlaces.
+              </div>
+              <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
+                <strong class="text-emerald-400 block mb-1">3. Equilibrio Final</strong>
+                Ciclo a ciclo, el nivel se redistribuye hasta estabilizarse. <strong>¡Ese nivel final es el PageRank!</strong>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             SLIDE 5: EL NAVEGANTE ABURRIDO (ACTO 2)
+             ========================================== -->
+        <article class="presentation-slide hidden flex-col gap-6 max-w-4xl mx-auto w-full my-auto">
+          <div class="border-b border-slate-800 pb-3">
+            <span class="text-xs font-mono text-emerald-400 uppercase tracking-wider block">Acto 2: Modelado Humano</span>
+            <h3 class="font-heading font-black text-2xl lg:text-3xl text-white">El "Navegante Aburrido" (El Factor $d = 0{,}85$)</h3>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div class="story-card p-6 rounded-2xl flex flex-col gap-3 border-rose-500/20">
+              <div class="flex items-center gap-2 text-rose-400 font-bold text-base">
+                <span>🕸️</span>
+                <span>El Peligro del Agujero Negro (Spider Trap)</span>
+              </div>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                ¿Qué pasa si dos páginas se enlazan solo entre ellas y a nadie más? En la analogía del agua, crean un <strong>sumidero infinito</strong> y se tragan toda el agua de internet, dejando secas al resto de las páginas.
+              </p>
+              <div class="p-2.5 rounded-lg bg-rose-950/30 text-rose-300 text-xs font-mono">
+                Sin corrección, el sistema matemático colapsa.
+              </div>
+            </div>
+
+            <div class="story-card p-6 rounded-2xl flex flex-col gap-3 border-sky-500/20">
+              <div class="flex items-center gap-2 text-sky-400 font-bold text-base">
+                <span>🧑‍💻</span>
+                <span>La Solución: Modelar a una Persona Real</span>
+              </div>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                Google modeló cómo navegamos los humanos en la vida real:
+              </p>
+              <ul class="text-xs space-y-1.5 text-slate-300 list-disc pl-4">
+                <li><strong class="text-sky-300">85% de las veces:</strong> Hacemos clic en los enlaces de la página que leemos.</li>
+                <li><strong class="text-amber-300">15% de las veces:</strong> Nos aburrimos, vamos a la barra del navegador y escribimos una URL cualquiera al azar.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- La Única Fórmula Conceptual -->
+          <div class="formula-box emerald p-6 rounded-3xl text-center flex flex-col gap-2 shadow-2xl">
+            <span class="text-xs font-mono text-emerald-400 uppercase tracking-widest font-bold">
+              La Única Regla Matemática que Gobierna la Red:
+            </span>
+            <div class="text-lg sm:text-2xl font-bold text-white my-1">
+              $$\text{Importancia} = (15\% \text{ Azar}) + (85\% \text{ Votos Recibidos})$$
+            </div>
+            <p class="text-xs text-slate-300">
+              Ese 15% de teletransporte garantiza que el agua circule siempre y que la matriz sea <strong>estrictamente diagonal dominante</strong>, ¡asegurando que Gauss-Seidel converja sin fallar jamás!
+            </p>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             SLIDE 6: A VERLO EN ACCIÓN (ACTO 3)
+             ========================================== -->
+        <article class="presentation-slide hidden flex-col gap-6 max-w-4xl mx-auto w-full my-auto text-center">
+          <div class="border-b border-slate-800 pb-3">
+            <span class="text-xs font-mono text-purple-400 uppercase tracking-wider block">Acto 3: Demostración en Vivo</span>
+            <h3 class="font-heading font-black text-2xl lg:text-3xl text-white">¡A Verlo en Acción! (Laboratorio Interactivo)</h3>
+          </div>
+
+          <p class="text-slate-300 text-sm lg:text-base max-w-2xl mx-auto leading-relaxed">
+            Vamos a comprobar en tiempo real cómo los votos viajan a través de los enlaces y cómo los Métodos Numéricos calculan la autoridad de cada página web:
+          </p>
+
+          <!-- Tarjetas de Casos de Estudio -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
+            <div class="story-card p-4 rounded-2xl flex flex-col justify-between gap-2 border-sky-500/30">
+              <div>
+                <span class="text-xs text-sky-400 font-bold block mb-1">1. La Red de 4 Páginas</span>
+                <p class="text-xs text-slate-300">Ver cómo los votos viajan y las páginas crecen en tamaño hasta estabilizarse.</p>
+              </div>
+              <button data-jump-lab="catedra4" type="button" class="text-xs font-semibold text-sky-400 hover:text-sky-300 text-left pt-2">
+                Simular Caso 4 Nodos &rarr;
+              </button>
+            </div>
+
+            <div class="story-card p-4 rounded-2xl flex flex-col justify-between gap-2 border-purple-500/30">
+              <div>
+                <span class="text-xs text-purple-400 font-bold block mb-1">2. El Efecto Influencer (Hub)</span>
+                <p class="text-xs text-slate-300">Una página que concentra la atención de todas y se vuelve el centro neurálgico.</p>
+              </div>
+              <button data-jump-lab="starHub" type="button" class="text-xs font-semibold text-purple-400 hover:text-purple-300 text-left pt-2">
+                Simular Red Estrella &rarr;
+              </button>
+            </div>
+
+            <div class="story-card p-4 rounded-2xl flex flex-col justify-between gap-2 border-amber-500/30">
+              <div>
+                <span class="text-xs text-amber-400 font-bold block mb-1">3. La Trampa Rota</span>
+                <p class="text-xs text-slate-300">Demostrar en vivo cómo el 15% de azar evita que la red colapse en un agujero negro.</p>
+              </div>
+              <button data-jump-lab="spiderTrap" type="button" class="text-xs font-semibold text-amber-400 hover:text-amber-300 text-left pt-2">
+                Simular Spider Trap &rarr;
+              </button>
+            </div>
+          </div>
+
+          <!-- BOTÓN CENTRAL GIGANTE DE SALTO AL SIMULADOR -->
+          <div class="pt-3">
+            <button data-jump-lab="catedra4" type="button" class="giant-cta inline-flex items-center gap-3 px-8 py-4 rounded-2xl text-white font-black text-base lg:text-lg cursor-pointer">
+              <span class="text-2xl animate-bounce">🚀</span>
+              <span>[ 🚀 Saltar al Laboratorio y Simular ]</span>
+            </button>
+            <p class="text-xs text-slate-400 mt-2">
+              (Al hacer clic, pasa a la vista del simulador, carga el grafo y muestra la animación)
+            </p>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             SLIDE 7: LA BATALLA NUMÉRICA: LU VS GAUSS-SEIDEL (ACTO 4)
+             ========================================== -->
+        <article class="presentation-slide hidden flex-col gap-6 max-w-4xl mx-auto w-full my-auto">
+          <div class="border-b border-slate-800 pb-3">
+            <span class="text-xs font-mono text-purple-400 uppercase tracking-wider block">Acto 4: Confrontación Numérica</span>
+            <h3 class="font-heading font-black text-2xl lg:text-3xl text-white">La Batalla: ¿Fuerza Bruta (LU) o Equilibrio Natural (Gauss-Seidel)?</h3>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <!-- Factorización LU -->
+            <div class="story-card p-6 rounded-2xl flex flex-col gap-3 border-indigo-500/30">
+              <div class="flex items-center gap-2 text-indigo-400 font-bold text-lg">
+                <span>💥</span>
+                <span>Factorización LU (Fuerza Bruta Directa)</span>
+              </div>
+              <p class="text-xs lg:text-sm text-slate-300 leading-relaxed">
+                Intenta resolver todo el sistema matemático en <strong>un solo paso monumental</strong> descomponiendo $A = L \cdot U$.
+              </p>
+              <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-slate-300 flex flex-col gap-1">
+                <strong class="text-rose-400">El Talón de Aquiles de LU:</strong>
+                <span>Requiere memorizar una matriz colosal de $\mathcal{O}(N^2)$. Para miles de millones de páginas web, <strong>¡ninguna supercomputadora del mundo tiene tanta memoria RAM!</strong></span>
+              </div>
+            </div>
+
+            <!-- Gauss-Seidel -->
+            <div class="story-card p-6 rounded-2xl flex flex-col gap-3 border-sky-500/30">
+              <div class="flex items-center gap-2 text-sky-400 font-bold text-lg">
+                <span>🌊</span>
+                <span>Gauss-Seidel (El Método Ganador)</span>
+              </div>
+              <p class="text-xs lg:text-sm text-slate-300 leading-relaxed">
+                Es exactamente la <strong>metáfora del agua</strong>: va recalculando vaso por vaso usando el dato más fresco que tiene a mano.
+              </p>
+              <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-slate-300 flex flex-col gap-1">
+                <strong class="text-emerald-400">Por qué triunfa Gauss-Seidel:</strong>
+                <span>Gasta mínima memoria ($\mathcal{O}(N)$), se autocorrige ronda a ronda y escala a dimensiones planetarias. Por eso <strong>Google y la Inteligencia Artificial moderna funcionan con métodos iterativos</strong>.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-300 text-center font-mono">
+            🏆 <strong>Veredicto de Ingeniería:</strong> Para redes pequeñas ($N \le 1000$), LU es exacto; para la Big Data real, Gauss-Seidel es el rey indiscutido.
+          </div>
+        </article>
+
+        <!-- ==========================================
+             SLIDE 8: QUÉ APRENDIMOS (ACTO 4)
+             ========================================== -->
+        <article class="presentation-slide hidden flex-col gap-6 max-w-4xl mx-auto w-full my-auto">
+          <div class="border-b border-slate-800 pb-3">
+            <span class="text-xs font-mono text-emerald-400 uppercase tracking-wider block">Acto 4: Aprendizajes de Ingeniería</span>
+            <h3 class="font-heading font-black text-2xl lg:text-3xl text-white">¿Qué Aprendimos con este Proyecto Integrador?</h3>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+            <div class="story-card p-5 rounded-2xl flex flex-col gap-2">
+              <div class="text-xl">🌐</div>
+              <strong class="text-sm font-semibold text-sky-400">1. De la Realidad al Álgebra</strong>
+              <p class="text-slate-300 leading-relaxed">
+                Un problema real y cotidiano (ordenar internet) se traduce matemáticamente en el sistema canónico $A \cdot \vec{r} = \vec{b}$ que estudiamos en la cátedra.
+              </p>
+            </div>
+
+            <div class="story-card p-5 rounded-2xl flex flex-col gap-2">
+              <div class="text-xl">⚡</div>
+              <strong class="text-sm font-semibold text-emerald-400">2. El Poder de la Iteración</strong>
+              <p class="text-slate-300 leading-relaxed">
+                Los métodos iterativos no son "aproximaciones de segunda mano": son la solución estándar en la industria para procesar grafos de escala masiva.
+              </p>
+            </div>
+
+            <div class="story-card p-5 rounded-2xl flex flex-col gap-2">
+              <div class="text-xl">🎯</div>
+              <strong class="text-sm font-semibold text-purple-400">3. Control del Criterio de Parada</strong>
+              <p class="text-slate-300 leading-relaxed">
+                Fijar la tolerancia $E_a < \varepsilon$ nos enseña a decidir con criterio ingenieril qué precisión necesitamos sin malgastar cómputo ni energía.
+              </p>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 text-xs text-slate-400 flex items-center gap-3">
+            <span class="text-lg">🤖</span>
+            <span>
+              <strong>Declaración de Transparencia Académica:</strong> Sistema interactivo desarrollado con asistencia computacional e IA para el diseño web, con fundamentación matemática y resolución algorítmica realizada según las directivas de la cátedra.
+            </span>
+          </div>
+        </article>
+
+        <!-- ==========================================
+             SLIDE 9: ¡MUCHAS GRACIAS! (ACTO 4)
+             ========================================== -->
+        <article class="presentation-slide hidden flex-col gap-6 max-w-4xl mx-auto w-full my-auto text-center">
+          <div class="w-16 h-16 rounded-3xl bg-gradient-to-tr from-sky-500 via-indigo-500 to-amber-500 flex items-center justify-center mx-auto text-3xl shadow-xl shadow-sky-500/25">
+            🎓
+          </div>
+
+          <h2 class="font-heading font-black text-3xl sm:text-4xl text-white">
+            ¡Muchas Gracias! (Preguntas del Tribunal)
+          </h2>
+
+          <p class="text-slate-300 text-base max-w-xl mx-auto leading-relaxed">
+            Espacio abierto para dudas, debate y pruebas con <strong>grafos personalizados creados en vivo por el profesor</strong>.
+          </p>
+
+          <!-- Tarjetas de Acceso a Repositorio y Despliegue Online -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto w-full text-left pt-1">
+            <a href="https://github.com/AugustoGar31/PI-Metodos-Numericos-PageRank" target="_blank" rel="noopener noreferrer" class="story-card p-4 rounded-2xl flex items-center gap-3 hover:border-sky-500/50 transition-all group">
+              <div class="w-10 h-10 rounded-xl bg-slate-800 text-white flex items-center justify-center text-xl shrink-0 group-hover:scale-110 transition-transform">
+                💻
+              </div>
+              <div>
+                <span class="text-xs text-sky-400 font-mono block">Código Fuente y Documentación</span>
+                <strong class="text-sm text-white group-hover:text-sky-300">Repositorio en GitHub &rarr;</strong>
+                <p class="text-xs text-slate-400">AugustoGar31/PI-Metodos-Numericos-PageRank</p>
+              </div>
+            </a>
+
+            <a href="https://augustogar31.github.io/PI-Metodos-Numericos-PageRank/pagerank-numerico/" target="_blank" rel="noopener noreferrer" class="story-card p-4 rounded-2xl flex items-center gap-3 hover:border-emerald-500/50 transition-all group">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl shrink-0 group-hover:scale-110 transition-transform">
+                🌐
+              </div>
+              <div>
+                <span class="text-xs text-emerald-400 font-mono block">Despliegue Web Online</span>
+                <strong class="text-sm text-white group-hover:text-emerald-300">Versión en GitHub Pages &rarr;</strong>
+                <p class="text-xs text-slate-400">Simulador interactivo 100% funcional</p>
+              </div>
+            </a>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <button data-jump-lab="catedra4" type="button" class="bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold px-6 py-3 rounded-xl text-sm transition-all shadow-lg shadow-sky-500/25 cursor-pointer">
+              🔬 Crear Red en Vivo con el Tribunal
+            </button>
+            <button onclick="window.print()" type="button" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-5 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer">
+              🖨️ Exportar Presentación en PDF
+            </button>
+          </div>
+
+          <div class="text-xs text-slate-500 font-mono pt-4 border-t border-slate-800/80">
+            Taller de Métodos Numéricos • Ciclo Lectivo 2026-2 • Defensa de Proyecto Integrador de PageRank
+          </div>
+        </article>
+
+      </div>
+
+    </section>
+
+    <!-- ==============================================================
+         VISTA 2: MODO LABORATORIO / SIMULADOR NUMÉRICO INTERACTIVO
+         ============================================================== -->
+    <div id="lab-section" class="flex flex-col gap-5">
+
+      <!-- TOP SECTION: CONTROLS & GRAPH INTERACTIVE CANVAS -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+        <!-- LEFT COLUMN: ALGORITHM CONTROLS & MATRIX INSPECTION (4 cols) -->
+        <aside class="lg:col-span-4 flex flex-col gap-4">
+
+          <!-- Card: Parámetros del Algoritmo -->
+          <div class="glass-panel rounded-2xl p-4 shadow-xl border border-slate-800 flex flex-col gap-4">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
+              <h2 class="font-heading font-semibold text-sm uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+                </svg>
+                Parámetros del Algoritmo
+              </h2>
+              <span class="text-[11px] text-slate-400 font-mono">A·r = b</span>
+            </div>
+
+            <!-- Damping Factor Slider -->
+            <div class="flex flex-col gap-1.5">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-slate-300 font-medium">Factor de Amortiguamiento (d):</span>
+                <span id="label-damping-value" class="font-mono font-bold text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded border border-sky-500/20">0.85</span>
+              </div>
+              <input id="input-damping" type="range" min="0.10" max="0.99" step="0.01" value="0.85" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-sky-500">
+              <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                <span>0.10 (Alta teletransportación)</span>
+                <span id="label-teleport-rate" class="text-slate-400">Teletransporte: 15%</span>
+                <span>0.99 (Poco teletransporte)</span>
+              </div>
+            </div>
+
+            <!-- Tolerancia Gauss-Seidel -->
+            <div class="grid grid-cols-2 gap-3">
+              <div class="flex flex-col gap-1">
+                <label for="select-tolerance" class="text-xs text-slate-300 font-medium">Tolerancia (ε):</label>
+                <select id="select-tolerance" class="bg-slate-900 border border-slate-700 rounded-lg text-xs p-2 text-slate-200 focus:ring-1 focus:ring-sky-500">
+                  <option value="1e-4">10⁻⁴ (0.0001)</option>
+                  <option value="1e-5" selected>10⁻⁵ (0.00001)</option>
+                  <option value="1e-6">10⁻⁶ (0.000001)</option>
+                  <option value="1e-7">10⁻⁷ (0.0000001)</option>
+                  <option value="1e-8">10⁻⁸ (0.00000001)</option>
+                </select>
+              </div>
+
+              <!-- Iteraciones Máximas -->
+              <div class="flex flex-col gap-1">
+                <label for="input-max-iter" class="text-xs text-slate-300 font-medium">Iteraciones Máx:</label>
+                <input id="input-max-iter" type="number" min="5" max="500" value="100" class="bg-slate-900 border border-slate-700 rounded-lg text-xs p-2 text-slate-200 focus:ring-1 focus:ring-sky-500 font-mono">
+              </div>
+            </div>
+
+            <!-- Vector Inicial x0 -->
+            <div class="flex flex-col gap-1">
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-slate-300 font-medium">Vector Inicial x⁽⁰⁾:</span>
+                <span class="text-[10px] text-slate-400 font-mono">Equiprobable [1/N]</span>
+              </div>
+              <div class="text-[11px] text-slate-400 bg-slate-900/80 p-2 rounded border border-slate-800">
+                Cada componente se inicia en <span id="label-initial-x0" class="font-mono text-sky-400">rᵢ⁽⁰⁾ = 0.250000</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Card: Inspección Matricial del Sistema Lineal -->
+          <div class="glass-panel rounded-2xl p-4 shadow-xl border border-slate-800 flex flex-col gap-3 flex-1">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+              <h2 class="font-heading font-semibold text-sm uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Inspección de Matrices
+              </h2>
+              <!-- Switch Matrix A / M / b -->
+              <div class="flex bg-slate-900 rounded-lg p-0.5 border border-slate-800 text-[11px] font-mono">
+                <button id="tab-mat-A" type="button" class="px-2 py-0.5 rounded text-sky-400 bg-sky-500/20 font-semibold transition-all">A = I-dM</button>
+                <button id="tab-mat-M" type="button" class="px-2 py-0.5 rounded text-slate-400 hover:text-slate-200 transition-all">M</button>
+                <button id="tab-vec-b" type="button" class="px-2 py-0.5 rounded text-slate-400 hover:text-slate-200 transition-all">b</button>
+              </div>
+            </div>
+
+            <!-- Diagonal Dominance Badge Indicator -->
+            <div id="badge-dominance-status" class="p-2.5 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-xs flex items-start gap-2">
+              <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <div class="text-[11px] leading-relaxed">
+                <strong class="font-semibold block">Convergencia Garantizada</strong>
+                <span id="text-dominance-desc">La matriz A es estrictamente diagonal dominante por columnas y su radio espectral cumple ρ(T_GS) ≤ d &lt; 1.</span>
+              </div>
+            </div>
+
+            <!-- Matrix Table Display Area -->
+            <div class="relative overflow-auto max-h-[190px] rounded-lg border border-slate-800 bg-slate-950/60 p-2">
+              <div id="matrix-display-container" class="font-mono text-xs flex justify-center items-center min-h-[120px]">
+                <span class="text-slate-500">Cargando matriz...</span>
+              </div>
+            </div>
+
+          </div>
+
+        </aside>
+
+        <!-- CENTER/RIGHT COLUMN: INTERACTIVE GRAPH CANVAS (8 cols) -->
+        <section class="lg:col-span-8 flex flex-col gap-4">
+
+          <!-- Card: Visor de Grafo Interactivo -->
+          <div class="glass-panel rounded-2xl p-4 shadow-xl border border-slate-800 flex flex-col gap-3">
+            
+            <!-- Graph Header & Toolbar -->
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+              <div class="flex items-center gap-3">
+                <h2 class="font-heading font-semibold text-base text-white flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  Topología de la Red Web
+                </h2>
+                <span id="badge-network-stats" class="text-xs bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full border border-slate-700 font-mono">
+                  4 Páginas • 7 Enlaces
+                </span>
+              </div>
+
+              <!-- Graph Canvas Controls -->
+              <div class="flex flex-wrap items-center gap-1.5">
+                <button id="btn-add-node" type="button" class="bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 hover:border-sky-500/50 px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1 transition-all">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                  <span>+ Página</span>
+                </button>
+
+                <button id="btn-add-edge" type="button" class="bg-slate-800 hover:bg-slate-700 text-indigo-400 border border-slate-700 hover:border-indigo-500/50 px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1 transition-all">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                  <span>+ Enlace</span>
+                </button>
+
+                <button id="btn-delete-selected" type="button" class="bg-slate-800 hover:bg-rose-900/40 text-rose-400 border border-slate-700 hover:border-rose-500/50 px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1 transition-all" title="Eliminar nodo o enlace seleccionado">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  <span>Eliminar</span>
+                </button>
+
+                <button id="btn-fit-network" type="button" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all" title="Centrar grafo">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                </button>
+
+                <!-- Toggle Física -->
+                <label class="flex items-center gap-1.5 text-xs text-slate-400 cursor-pointer pl-1">
+                  <input id="toggle-physics" type="checkbox" checked class="w-3.5 h-3.5 accent-sky-500 rounded bg-slate-900 border-slate-700">
+                  <span>Física</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Canvas Vis-Network Container -->
+            <div class="relative w-full h-[370px] rounded-xl overflow-hidden border border-slate-800">
+              <div id="network-container" class="w-full h-full"></div>
+
+              <!-- Overlay Legend for PageRank intensity -->
+              <div class="absolute bottom-3 left-3 bg-slate-950/85 backdrop-blur-md px-3 py-2 rounded-lg border border-slate-800/80 text-[11px] text-slate-300 flex items-center gap-3 shadow-lg pointer-events-none">
+                <span class="font-medium text-slate-400">Importancia PageRank:</span>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-sky-600"></span>
+                  <span>Bajo</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-3 h-3 rounded-full bg-violet-600"></span>
+                  <span>Medio</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-4 h-4 rounded-full bg-amber-500 ring-2 ring-yellow-400/50"></span>
+                  <span class="font-bold text-amber-300">Líder (#1)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom bar of Canvas: Live Ranking Quick Summary -->
+            <div id="ranking-summary-bar" class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+              <!-- Populated dynamically by app.js -->
+            </div>
+
+          </div>
+
+        </section>
+
+      </div>
+
+      <!-- BOTTOM SECTION: TABBED RESULTS AND COMPARATIVE ANALYSIS -->
+      <section class="glass-panel rounded-2xl shadow-2xl border border-slate-800 overflow-hidden flex flex-col">
+
+        <!-- Navigation Tabs Header -->
+        <div class="flex flex-wrap items-center border-b border-slate-800 bg-slate-950/70 px-4 pt-2 gap-2">
+          <button id="tab-btn-gs" type="button" class="tab-btn active px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-t-xl border-b-2 flex items-center gap-2 transition-all">
+            <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+            <span>Paso a Paso Gauss-Seidel</span>
+          </button>
+
+          <button id="tab-btn-lu" type="button" class="tab-btn text-slate-400 hover:text-slate-200 border-transparent px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-t-xl border-b-2 flex items-center gap-2 transition-all">
+            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
+            <span>Factorización LU (Doolittle)</span>
+          </button>
+
+          <button id="tab-btn-comparison" type="button" class="tab-btn text-slate-400 hover:text-slate-200 border-transparent px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-t-xl border-b-2 flex items-center gap-2 transition-all">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+            <span>Comparación de Métodos y Gráficos</span>
+          </button>
+
+          <button id="tab-btn-theory" type="button" class="tab-btn text-slate-400 hover:text-slate-200 border-transparent px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-t-xl border-b-2 flex items-center gap-2 transition-all">
+            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            <span>Fundamento Teórico</span>
+          </button>
+        </div>
+
+        <!-- TAB CONTENT CONTAINER -->
+        <div class="p-5">
+
+          <!-- TAB 1: GAUSS-SEIDEL PASO A PASO -->
+          <div id="tab-content-gs" class="flex flex-col gap-4">
+            <!-- Metrics Cards Row -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex flex-col">
+                <span class="text-xs text-slate-400">Iteraciones Realizadas</span>
+                <span id="metric-gs-iter" class="text-xl font-bold font-mono text-sky-400 mt-1">--</span>
+                <span id="metric-gs-status" class="text-[10px] text-emerald-400 font-medium mt-0.5">Esperando cálculo</span>
+              </div>
+
+              <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex flex-col">
+                <span class="text-xs text-slate-400">Error Máximo Final</span>
+                <span id="metric-gs-error" class="text-xl font-bold font-mono text-amber-400 mt-1">--</span>
+                <span class="text-[10px] text-slate-500 font-mono">max |rᵢ^(k) - rᵢ^(k-1)|</span>
+              </div>
+
+              <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex flex-col">
+                <span class="text-xs text-slate-400">Tiempo de Cómputo</span>
+                <span id="metric-gs-time" class="text-xl font-bold font-mono text-indigo-400 mt-1">--</span>
+                <span class="text-[10px] text-slate-500 font-mono">Milissegundos (ms)</span>
+              </div>
+
+              <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex flex-col">
+                <span class="text-xs text-slate-400">Norma del Residuo ||A·r - b||₂</span>
+                <span id="metric-gs-residual" class="text-xl font-bold font-mono text-emerald-400 mt-1">--</span>
+                <span class="text-[10px] text-slate-500 font-mono">Precisión del sistema</span>
+              </div>
+            </div>
+
+            <!-- Iteration Table Container -->
+            <div class="flex flex-col gap-2">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <h3 class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+                  <span>Tabla de Iteraciones Paso a Paso</span>
+                  <span class="text-[11px] text-slate-400 font-normal font-mono">(Valores rᵢ y Errores Absolutos |Eᵢ|)</span>
+                </h3>
+                <button id="btn-export-csv" type="button" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all">
+                  <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                  <span>Descargar CSV</span>
+                </button>
+              </div>
+
+              <div class="overflow-x-auto max-h-[380px] rounded-xl border border-slate-800 bg-slate-950/80 shadow-inner">
+                <table id="table-gauss-seidel" class="iteration-table w-full text-left border-collapse">
+                  <thead>
+                    <tr>
+                      <th>Iter (k)</th>
+                      <th>X₁</th>
+                      <th>|E₁|</th>
+                      <th>X₂</th>
+                      <th>|E₂|</th>
+                      <th>X₃</th>
+                      <th>|E₃|</th>
+                      <th>X₄</th>
+                      <th>|E₄|</th>
+                      <th>Error Máx</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td colspan="10" class="text-center py-8 text-slate-500 font-mono">
+                        Presiona "Calcular PageRank" para generar la tabla paso a paso.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: FACTORIZACIÓN LU (DOOLITTLE) -->
+          <div id="tab-content-lu" class="hidden flex flex-col gap-5">
+            <!-- LU Metrics Row -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex flex-col">
+                <span class="text-xs text-slate-400">Método Directo</span>
+                <span class="text-lg font-bold text-indigo-400 mt-1">Doolittle (A = L·U)</span>
+                <span class="text-[10px] text-slate-500 font-mono">diag(L) = 1</span>
+              </div>
+
+              <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex flex-col">
+                <span class="text-xs text-slate-400">Tiempo de Cómputo</span>
+                <span id="metric-lu-time" class="text-xl font-bold font-mono text-indigo-400 mt-1">--</span>
+                <span class="text-[10px] text-slate-500 font-mono">Pase directo sin iteraciones</span>
+              </div>
+
+              <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex flex-col">
+                <span class="text-xs text-slate-400">Norma del Residuo ||A·r - b||₂</span>
+                <span id="metric-lu-residual" class="text-xl font-bold font-mono text-emerald-400 mt-1">--</span>
+                <span class="text-[10px] text-slate-500 font-mono">Precisión de máquina</span>
+              </div>
+
+              <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex flex-col">
+                <span class="text-xs text-slate-400">Suma Total del PageRank</span>
+                <span id="metric-lu-sum" class="text-xl font-bold font-mono text-sky-400 mt-1">1.000000</span>
+                <span class="text-[10px] text-emerald-400 font-medium">Conservación estocástica</span>
+              </div>
+            </div>
+
+            <!-- L & U Matrices Display -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col gap-2">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                  <h4 class="font-heading font-semibold text-sm text-sky-300">Matriz Triangular Inferior L (Lᵢᵢ = 1)</h4>
+                  <span class="text-[10px] bg-sky-500/10 text-sky-400 px-2 py-0.5 rounded border border-sky-500/20 font-mono">L·y = b</span>
+                </div>
+                <div id="container-matrix-L" class="overflow-x-auto p-2 bg-slate-950/60 rounded-lg font-mono text-xs text-center min-h-[120px] flex items-center justify-center">
+                  <span class="text-slate-500">Sin datos de cálculo</span>
+                </div>
+              </div>
+
+              <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col gap-2">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                  <h4 class="font-heading font-semibold text-sm text-indigo-300">Matriz Triangular Superior U</h4>
+                  <span class="text-[10px] bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded border border-indigo-500/20 font-mono">U·r = y</span>
+                </div>
+                <div id="container-matrix-U" class="overflow-x-auto p-2 bg-slate-950/60 rounded-lg font-mono text-xs text-center min-h-[120px] flex items-center justify-center">
+                  <span class="text-slate-500">Sin datos de cálculo</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sustituciones Paso a Paso -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col gap-2">
+                <h4 class="font-heading font-semibold text-sm text-slate-200 border-b border-slate-800 pb-2">
+                  1. Sustitución Hacia Adelante (L·y = b)
+                </h4>
+                <div id="steps-forward-sub" class="font-mono text-xs text-slate-300 flex flex-col gap-1.5 p-2 bg-slate-950/50 rounded-lg max-h-[180px] overflow-y-auto">
+                  <span class="text-slate-500">Ejecuta el cálculo para visualizar los pasos.</span>
+                </div>
+              </div>
+
+              <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col gap-2">
+                <h4 class="font-heading font-semibold text-sm text-slate-200 border-b border-slate-800 pb-2">
+                  2. Sustitución Hacia Atrás (U·r = y)
+                </h4>
+                <div id="steps-back-sub" class="font-mono text-xs text-slate-300 flex flex-col gap-1.5 p-2 bg-slate-950/50 rounded-lg max-h-[180px] overflow-y-auto">
+                  <span class="text-slate-500">Ejecuta el cálculo para visualizar los pasos.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 3: COMPARACIÓN DE MÉTODOS Y GRÁFICOS -->
+          <div id="tab-content-comparison" class="hidden flex flex-col gap-5">
+            <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/80 shadow-xl">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="bg-slate-900/90 text-slate-300 uppercase tracking-wider text-[11px] border-b border-slate-800">
+                    <th class="p-3 font-semibold">Criterio / Métrica</th>
+                    <th class="p-3 font-semibold text-sky-400">Método Iterativo (Gauss-Seidel)</th>
+                    <th class="p-3 font-semibold text-indigo-400">Método Directo (Factorización LU)</th>
+                    <th class="p-3 font-semibold text-emerald-400">Análisis Comparativo</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/80 font-mono text-slate-300">
+                  <tr>
+                    <td class="p-3 font-sans font-medium text-slate-200">Tipo de Enfoque</td>
+                    <td class="p-3 text-sky-300">Iterativo (Aproximaciones sucesivas)</td>
+                    <td class="p-3 text-indigo-300">Directo (Descomposición exacta A = L·U)</td>
+                    <td class="p-3 font-sans text-slate-400">Gauss-Seidel actualiza in-place en cada componente.</td>
+                  </tr>
+                  <tr>
+                    <td class="p-3 font-sans font-medium text-slate-200">Iteraciones Realizadas</td>
+                    <td id="comp-gs-iter" class="p-3 font-bold text-sky-400">--</td>
+                    <td class="p-3 text-indigo-300">1 pase (3 fases algebraicas)</td>
+                    <td class="p-3 font-sans text-slate-400">LU no itera; resuelve en un número finito predecible de pasos.</td>
+                  </tr>
+                  <tr>
+                    <td class="p-3 font-sans font-medium text-slate-200">Tiempo de Cómputo</td>
+                    <td id="comp-gs-time" class="p-3 text-sky-400">-- ms</td>
+                    <td id="comp-lu-time" class="p-3 text-indigo-400">-- ms</td>
+                    <td class="p-3 font-sans text-slate-400">Para grafos pequeños ambos son instantáneos; en matrices masivas rige la dispersión.</td>
+                  </tr>
+                  <tr>
+                    <td class="p-3 font-sans font-medium text-slate-200">Norma del Residuo ||A·r - b||₂</td>
+                    <td id="comp-gs-residual" class="p-3 text-sky-400">--</td>
+                    <td id="comp-lu-residual" class="p-3 text-indigo-400">--</td>
+                    <td class="p-3 font-sans text-slate-400">LU alcanza precisión de épsilon de máquina; GS se detiene al satisfacer la tolerancia ε.</td>
+                  </tr>
+                  <tr>
+                    <td class="p-3 font-sans font-medium text-slate-200">Complejidad Temporal</td>
+                    <td class="p-3 text-sky-300">O(k · N²)  [O(k · |E|) si es dispersa]</td>
+                    <td class="p-3 text-indigo-300">O(N³) para descomposición + O(N²) sustituciones</td>
+                    <td class="p-3 font-sans text-slate-400">Para N grande, O(N³) es inviable; los métodos iterativos dominan.</td>
+                  </tr>
+                  <tr>
+                    <td class="p-3 font-sans font-medium text-slate-200">Complejidad Espacial</td>
+                    <td class="p-3 text-sky-300">O(N) vector in-place + matriz</td>
+                    <td class="p-3 text-indigo-300">O(N²) para matrices L y U (fenómeno de fill-in)</td>
+                    <td class="p-3 font-sans text-slate-400">LU sufre de 'fill-in' destruyendo la dispersión de ceros.</td>
+                  </tr>
+                  <tr>
+                    <td class="p-3 font-sans font-medium text-slate-200">Garantía de Convergencia</td>
+                    <td class="p-3 text-emerald-400">Incondicional si d &lt; 1 (ρ(T) ≤ d &lt; 1)</td>
+                    <td class="p-3 text-emerald-400">Exacta sin pivoteo si A no es singular</td>
+                    <td class="p-3 font-sans text-slate-400">El factor d garantiza estabilidad matemática en ambos.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Chart.js Canvases Container -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col gap-2">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                  <h4 class="font-heading font-semibold text-sm text-sky-300">Curva de Convergencia: Log₁₀(|Error Máx|) vs Iteración</h4>
+                  <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono">Gauss-Seidel</span>
+                </div>
+                <div class="relative w-full h-[260px]">
+                  <canvas id="chart-convergence"></canvas>
+                </div>
+              </div>
+
+              <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col gap-2">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                  <h4 class="font-heading font-semibold text-sm text-indigo-300">Distribución de PageRank por Nodo (GS vs LU)</h4>
+                  <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono">Validación Cruzada</span>
+                </div>
+                <div class="relative w-full h-[260px]">
+                  <canvas id="chart-scores-distribution"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 4: FUNDAMENTO TEÓRICO (CON KATEX) -->
+          <div id="tab-content-theory" class="hidden flex flex-col gap-6 text-sm text-slate-300 leading-relaxed max-w-4xl mx-auto">
+            <div class="border-b border-slate-800 pb-4">
+              <h3 class="font-heading font-bold text-xl text-white mb-2">Fundamento Matemático del Sistema de PageRank</h3>
+              <p class="text-slate-400 text-xs">Modelado canónico de cadenas de Markov y resolución de sistemas de ecuaciones lineales $A \cdot \vec{r} = \vec{b}$.</p>
+            </div>
+
+            <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col gap-3">
+              <h4 class="font-heading font-semibold text-base text-sky-400">1. Construcción de la Matriz de Transición $M$</h4>
+              <p>
+                Dada una red orientada de $N$ páginas web, un usuario navegante en la página $j$ que posee $L_j$ hipervínculos salientes elegirá cada enlace con probabilidad uniforme $1 / L_j$. 
+                Si una página no posee enlaces salientes ($L_j = 0$, conocida como <em>dangling node</em>), la probabilidad se distribuye equitativamente hacia todas las $N$ páginas con valor $1/N$ para garantizar que cada columna sume exactamente 1.
+              </p>
+              <div class="p-3 bg-slate-950 rounded-lg text-xs text-sky-300 border border-slate-800 text-center">
+                $$M_{ij} = \begin{cases} \dfrac{1}{L_j} & \text{si } j \to i \\ \dfrac{1}{N} & \text{si } L_j = 0 \end{cases}$$
+              </div>
+            </div>
+
+            <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col gap-3">
+              <h4 class="font-heading font-semibold text-base text-indigo-400">2. Formulación Canónica del Sistema Lineal $A \cdot \vec{r} = \vec{b}$</h4>
+              <p>
+                Con el factor de amortiguamiento $d \in (0, 1)$ ($d = 0{,}85$), la ecuación de equilibrio es:
+              </p>
+              <div class="p-3 bg-slate-950 rounded-lg text-xs text-indigo-300 border border-slate-800 text-center">
+                $$\vec{r} = d \cdot M \vec{r} + \left(\frac{1 - d}{N}\right) \mathbf{1} \iff (I - d \cdot M)\vec{r} = \left(\frac{1 - d}{N}\right)\mathbf{1}$$
+              </div>
+              <p>
+                Definiendo $A = I - d \cdot M$ y $\vec{b} = \frac{1-d}{N} \mathbf{1}$, obtenemos el sistema clásico $A \cdot \vec{r} = \vec{b}$.
+              </p>
+            </div>
+
+            <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col gap-3">
+              <h4 class="font-heading font-semibold text-base text-emerald-400">3. Demostración de Convergencia</h4>
+              <p>
+                Para cada columna $j$, $|a_{jj}| = 1 - d M_{jj}$ y $\sum_{i \ne j} |a_{ij}| = d(1 - M_{jj})$. La diferencia estricta es:
+              </p>
+              <div class="p-3 bg-slate-950 rounded-lg text-xs text-emerald-300 border border-slate-800 text-center">
+                $$|a_{jj}| - \sum_{i \ne j} |a_{ij}| = 1 - d = 0{,}15 > 0$$
+              </div>
+              <p>
+                La matriz es estrictamente diagonal dominante por columnas y $\rho(T_{GS}) \le d < 1$. Gauss-Seidel converge siempre.
+              </p>
+            </div>
           </div>
 
         </div>
@@ -287,368 +1105,13 @@
 
     </div>
 
-    <!-- BOTTOM SECTION: TABBED RESULTS AND COMPARATIVE ANALYSIS -->
-    <section class="glass-panel rounded-2xl shadow-2xl border border-slate-800 overflow-hidden flex flex-col">
-
-      <!-- Navigation Tabs Header -->
-      <div class="flex flex-wrap items-center border-b border-slate-800 bg-slate-950/70 px-4 pt-2 gap-2">
-        <button id="tab-btn-gs" type="button" class="tab-btn active px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-t-xl border-b-2 flex items-center gap-2 transition-all">
-          <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-          <span>Paso a Paso Gauss-Seidel</span>
-        </button>
-
-        <button id="tab-btn-lu" type="button" class="tab-btn text-slate-400 hover:text-slate-200 border-transparent px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-t-xl border-b-2 flex items-center gap-2 transition-all">
-          <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
-          <span>Factorización LU (Doolittle)</span>
-        </button>
-
-        <button id="tab-btn-comparison" type="button" class="tab-btn text-slate-400 hover:text-slate-200 border-transparent px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-t-xl border-b-2 flex items-center gap-2 transition-all">
-          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-          <span>Comparación de Métodos y Gráficos</span>
-        </button>
-
-        <button id="tab-btn-theory" type="button" class="tab-btn text-slate-400 hover:text-slate-200 border-transparent px-4 py-2.5 text-xs lg:text-sm font-semibold rounded-t-xl border-b-2 flex items-center gap-2 transition-all">
-          <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-          <span>Fundamento Teórico</span>
-        </button>
-      </div>
-
-      <!-- TAB CONTENT CONTAINER -->
-      <div class="p-5">
-
-        <!-- TAB 1: GAUSS-SEIDEL PASO A PASO -->
-        <div id="tab-content-gs" class="flex flex-col gap-4">
-          <!-- Metrics Cards Row -->
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex flex-col">
-              <span class="text-xs text-slate-400">Iteraciones Realizadas</span>
-              <span id="metric-gs-iter" class="text-xl font-bold font-mono text-sky-400 mt-1">--</span>
-              <span id="metric-gs-status" class="text-[10px] text-emerald-400 font-medium mt-0.5">Esperando cálculo</span>
-            </div>
-
-            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex flex-col">
-              <span class="text-xs text-slate-400">Error Máximo Final</span>
-              <span id="metric-gs-error" class="text-xl font-bold font-mono text-amber-400 mt-1">--</span>
-              <span class="text-[10px] text-slate-500 font-mono">max |rᵢ^(k) - rᵢ^(k-1)|</span>
-            </div>
-
-            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex flex-col">
-              <span class="text-xs text-slate-400">Tiempo de Cómputo</span>
-              <span id="metric-gs-time" class="text-xl font-bold font-mono text-indigo-400 mt-1">--</span>
-              <span class="text-[10px] text-slate-500 font-mono">Milissegundos (ms)</span>
-            </div>
-
-            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex flex-col">
-              <span class="text-xs text-slate-400">Norma del Residuo ||A·r - b||₂</span>
-              <span id="metric-gs-residual" class="text-xl font-bold font-mono text-emerald-400 mt-1">--</span>
-              <span class="text-[10px] text-slate-500 font-mono">Precisión del sistema</span>
-            </div>
-          </div>
-
-          <!-- Iteration Table Container -->
-          <div class="flex flex-col gap-2">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <h3 class="text-sm font-semibold text-slate-200 flex items-center gap-2">
-                <span>Tabla de Iteraciones Paso a Paso</span>
-                <span class="text-[11px] text-slate-400 font-normal font-mono">(Valores rᵢ y Errores Absolutos |Eᵢ|)</span>
-              </h3>
-              <button id="btn-export-csv" type="button" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all">
-                <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                <span>Descargar CSV</span>
-              </button>
-            </div>
-
-            <div class="overflow-x-auto max-h-[380px] rounded-xl border border-slate-800 bg-slate-950/80 shadow-inner">
-              <table id="table-gauss-seidel" class="iteration-table w-full text-left border-collapse">
-                <!-- Dynamically populated -->
-                <thead>
-                  <tr>
-                    <th>Iter (k)</th>
-                    <th>X₁</th>
-                    <th>|E₁|</th>
-                    <th>X₂</th>
-                    <th>|E₂|</th>
-                    <th>X₃</th>
-                    <th>|E₃|</th>
-                    <th>X₄</th>
-                    <th>|E₄|</th>
-                    <th>Error Máx</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td colspan="10" class="text-center py-8 text-slate-500 font-mono">
-                      Presiona "Calcular PageRank" para generar la tabla paso a paso.
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- TAB 2: FACTORIZACIÓN LU (DOOLITTLE) -->
-        <div id="tab-content-lu" class="hidden flex flex-col gap-5">
-          <!-- LU Metrics Row -->
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex flex-col">
-              <span class="text-xs text-slate-400">Método Directo</span>
-              <span class="text-lg font-bold text-indigo-400 mt-1">Doolittle (A = L·U)</span>
-              <span class="text-[10px] text-slate-500 font-mono">diag(L) = 1</span>
-            </div>
-
-            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex flex-col">
-              <span class="text-xs text-slate-400">Tiempo de Cómputo</span>
-              <span id="metric-lu-time" class="text-xl font-bold font-mono text-indigo-400 mt-1">--</span>
-              <span class="text-[10px] text-slate-500 font-mono">Pase directo sin iteraciones</span>
-            </div>
-
-            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex flex-col">
-              <span class="text-xs text-slate-400">Norma del Residuo ||A·r - b||₂</span>
-              <span id="metric-lu-residual" class="text-xl font-bold font-mono text-emerald-400 mt-1">--</span>
-              <span class="text-[10px] text-slate-500 font-mono">Precisión de máquina</span>
-            </div>
-
-            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex flex-col">
-              <span class="text-xs text-slate-400">Suma Total del PageRank</span>
-              <span id="metric-lu-sum" class="text-xl font-bold font-mono text-sky-400 mt-1">1.000000</span>
-              <span class="text-[10px] text-emerald-400 font-medium">Conservación estocástica</span>
-            </div>
-          </div>
-
-          <!-- L & U Matrices Display -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Matriz L -->
-            <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col gap-2">
-              <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                <h4 class="font-heading font-semibold text-sm text-sky-300">Matriz Triangular Inferior L (Lᵢᵢ = 1)</h4>
-                <span class="text-[10px] bg-sky-500/10 text-sky-400 px-2 py-0.5 rounded border border-sky-500/20 font-mono">L·y = b</span>
-              </div>
-              <div id="container-matrix-L" class="overflow-x-auto p-2 bg-slate-950/60 rounded-lg font-mono text-xs text-center min-h-[120px] flex items-center justify-center">
-                <span class="text-slate-500">Sin datos de cálculo</span>
-              </div>
-            </div>
-
-            <!-- Matriz U -->
-            <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col gap-2">
-              <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                <h4 class="font-heading font-semibold text-sm text-indigo-300">Matriz Triangular Superior U</h4>
-                <span class="text-[10px] bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded border border-indigo-500/20 font-mono">U·r = y</span>
-              </div>
-              <div id="container-matrix-U" class="overflow-x-auto p-2 bg-slate-950/60 rounded-lg font-mono text-xs text-center min-h-[120px] flex items-center justify-center">
-                <span class="text-slate-500">Sin datos de cálculo</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Sustituciones Paso a Paso -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Sustitución Progresiva -->
-            <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col gap-2">
-              <h4 class="font-heading font-semibold text-sm text-slate-200 border-b border-slate-800 pb-2">
-                1. Sustitución Hacia Adelante (L·y = b)
-              </h4>
-              <div id="steps-forward-sub" class="font-mono text-xs text-slate-300 flex flex-col gap-1.5 p-2 bg-slate-950/50 rounded-lg max-h-[180px] overflow-y-auto">
-                <span class="text-slate-500">Ejecuta el cálculo para visualizar los pasos.</span>
-              </div>
-            </div>
-
-            <!-- Sustitución Regresiva -->
-            <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col gap-2">
-              <h4 class="font-heading font-semibold text-sm text-slate-200 border-b border-slate-800 pb-2">
-                2. Sustitución Hacia Atrás (U·r = y)
-              </h4>
-              <div id="steps-back-sub" class="font-mono text-xs text-slate-300 flex flex-col gap-1.5 p-2 bg-slate-950/50 rounded-lg max-h-[180px] overflow-y-auto">
-                <span class="text-slate-500">Ejecuta el cálculo para visualizar los pasos.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- TAB 3: COMPARACIÓN DE MÉTODOS Y GRÁFICOS -->
-        <div id="tab-content-comparison" class="hidden flex flex-col gap-5">
-          
-          <!-- Side-by-Side Comparison Table -->
-          <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/80 shadow-xl">
-            <table class="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr class="bg-slate-900/90 text-slate-300 uppercase tracking-wider text-[11px] border-b border-slate-800">
-                  <th class="p-3 font-semibold">Criterio / Métrica</th>
-                  <th class="p-3 font-semibold text-sky-400">Método Iterativo (Gauss-Seidel)</th>
-                  <th class="p-3 font-semibold text-indigo-400">Método Directo (Factorización LU)</th>
-                  <th class="p-3 font-semibold text-emerald-400">Análisis Comparativo</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-800/80 font-mono text-slate-300">
-                <tr>
-                  <td class="p-3 font-sans font-medium text-slate-200">Tipo de Enfoque</td>
-                  <td class="p-3 text-sky-300">Iterativo (Aproximaciones sucesivas)</td>
-                  <td class="p-3 text-indigo-300">Directo (Descomposición exacta A = L·U)</td>
-                  <td class="p-3 font-sans text-slate-400">Gauss-Seidel actualiza in-place en cada componente.</td>
-                </tr>
-                <tr>
-                  <td class="p-3 font-sans font-medium text-slate-200">Iteraciones Realizadas</td>
-                  <td id="comp-gs-iter" class="p-3 font-bold text-sky-400">--</td>
-                  <td class="p-3 text-indigo-300">1 pase (3 fases algebraicas)</td>
-                  <td class="p-3 font-sans text-slate-400">LU no itera; resuelve en un número finito predecible de pasos.</td>
-                </tr>
-                <tr>
-                  <td class="p-3 font-sans font-medium text-slate-200">Tiempo de Cómputo</td>
-                  <td id="comp-gs-time" class="p-3 text-sky-400">-- ms</td>
-                  <td id="comp-lu-time" class="p-3 text-indigo-400">-- ms</td>
-                  <td class="p-3 font-sans text-slate-400">Para grafos pequeños ambos son instantáneos; en matrices masivas rige la dispersión.</td>
-                </tr>
-                <tr>
-                  <td class="p-3 font-sans font-medium text-slate-200">Norma del Residuo ||A·r - b||₂</td>
-                  <td id="comp-gs-residual" class="p-3 text-sky-400">--</td>
-                  <td id="comp-lu-residual" class="p-3 text-indigo-400">--</td>
-                  <td class="p-3 font-sans text-slate-400">LU alcanza precisión de épsilon de máquina; GS se detiene al satisfacer la tolerancia ε.</td>
-                </tr>
-                <tr>
-                  <td class="p-3 font-sans font-medium text-slate-200">Complejidad Temporal</td>
-                  <td class="p-3 text-sky-300">O(k · N²)  [O(k · |E|) si es dispersa]</td>
-                  <td class="p-3 text-indigo-300">O(N³) para descomposición + O(N²) sustituciones</td>
-                  <td class="p-3 font-sans text-slate-400">Para N grande (ej. web real con millones de nodos), O(N³) es inviable; los métodos iterativos dominan.</td>
-                </tr>
-                <tr>
-                  <td class="p-3 font-sans font-medium text-slate-200">Complejidad Espacial</td>
-                  <td class="p-3 text-sky-300">O(N) vector in-place + matriz</td>
-                  <td class="p-3 text-indigo-300">O(N²) para matrices L y U (fenómeno de fill-in)</td>
-                  <td class="p-3 font-sans text-slate-400">LU sufre de 'fill-in' destruyendo la dispersión de ceros.</td>
-                </tr>
-                <tr>
-                  <td class="p-3 font-sans font-medium text-slate-200">Garantía de Convergencia</td>
-                  <td class="p-3 text-emerald-400">Incondicional si d &lt; 1 (ρ(T) ≤ d &lt; 1)</td>
-                  <td class="p-3 text-emerald-400">Exacta sin pivoteo si A no es singular</td>
-                  <td class="p-3 font-sans text-slate-400">El factor de amortiguamiento d garantiza estabilidad matemática en ambos.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Chart.js Canvases Container -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <!-- Chart 1: Log Convergence vs Iteration -->
-            <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col gap-2">
-              <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                <h4 class="font-heading font-semibold text-sm text-sky-300">Curva de Convergencia: Log₁₀(|Error Máx|) vs Iteración</h4>
-                <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono">Gauss-Seidel</span>
-              </div>
-              <div class="relative w-full h-[260px]">
-                <canvas id="chart-convergence"></canvas>
-              </div>
-            </div>
-
-            <!-- Chart 2: PageRank Distribution Comparison -->
-            <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col gap-2">
-              <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                <h4 class="font-heading font-semibold text-sm text-indigo-300">Distribución de PageRank por Nodo (GS vs LU)</h4>
-                <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono">Validación Cruzada</span>
-              </div>
-              <div class="relative w-full h-[260px]">
-                <canvas id="chart-scores-distribution"></canvas>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- TAB 4: FUNDAMENTO TEÓRICO -->
-        <div id="tab-content-theory" class="hidden flex flex-col gap-6 text-sm text-slate-300 leading-relaxed max-w-4xl mx-auto">
-          
-          <div class="border-b border-slate-800 pb-4">
-            <h3 class="font-heading font-bold text-xl text-white mb-2">Fundamento Matemático del Sistema de PageRank</h3>
-            <p class="text-slate-400 text-xs">Modelado canónico de cadenas de Markov y resolución de sistemas de ecuaciones lineales A·r = b.</p>
-          </div>
-
-          <!-- Section 1 -->
-          <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col gap-3">
-            <h4 class="font-heading font-semibold text-base text-sky-400">1. Construcción de la Matriz de Transición M</h4>
-            <p>
-              Dada una red orientada de $N$ páginas web, un usuario navegante en la página $j$ que posee $L_j$ hipervínculos salientes elegirá cada enlace con probabilidad uniforme $1 / L_j$. 
-              Si una página no posee enlaces salientes ($L_j = 0$, conocida como <em>dangling node</em>), la probabilidad se distribuye equitativamente hacia todas las $N$ páginas con valor $1/N$ para garantizar que cada columna sume exactamente 1 (matriz estocástica por columnas).
-            </p>
-            <div class="p-3 bg-slate-950 rounded-lg font-mono text-xs text-sky-300 border border-slate-800">
-              M[i][j] = 1 / L_j &nbsp;&nbsp;(si existe enlace j &rarr; i)<br>
-              M[i][j] = 1 / N &nbsp;&nbsp;&nbsp;(si L_j = 0, dangling node)
-            </div>
-          </div>
-
-          <!-- Section 2 -->
-          <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col gap-3">
-            <h4 class="font-heading font-semibold text-base text-indigo-400">2. Formulación Canónica del Sistema Lineal A·r = b</h4>
-            <p>
-              Para evitar trampas de enlaces (<em>spider traps</em>) y componentes desconectadas, el algoritmo introduce el factor de amortiguamiento $d \in (0, 1)$ (típicamente $d = 0.85$). La ecuación de equilibrio del caminante aleatorio es:
-            </p>
-            <div class="p-3 bg-slate-950 rounded-lg font-mono text-xs text-indigo-300 border border-slate-800">
-              r = d · M · r + ((1 - d) / N) · 1
-            </div>
-            <p>
-              Reordenando términos algebraicamente:
-            </p>
-            <div class="p-3 bg-slate-950 rounded-lg font-mono text-xs text-indigo-300 border border-slate-800">
-              r - d · M · r = ((1 - d) / N) · 1<br>
-              (I - d · M) · r = ((1 - d) / N) · 1
-            </div>
-            <p>
-              Definiendo la matriz del sistema como <strong>$A = I - d \cdot M$</strong> y el vector de términos independientes como <strong>$b = \frac{1 - d}{N} \cdot \mathbf{1}$</strong>, el problema de PageRank queda formalmente transformado en el sistema lineal canónico:
-            </p>
-            <div class="p-3 bg-slate-950 rounded-lg font-mono text-xs text-emerald-400 text-center font-bold border border-slate-800">
-              A · r = b
-            </div>
-          </div>
-
-          <!-- Section 3 -->
-          <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col gap-3">
-            <h4 class="font-heading font-semibold text-base text-emerald-400">3. Teorema de Convergencia para Gauss-Seidel</h4>
-            <p>
-              La matriz de coeficientes $A = I - d \cdot M$ posee propiedades matemáticas notables:
-            </p>
-            <ul class="list-disc pl-5 space-y-1.5 text-xs text-slate-300">
-              <li>
-                <strong>Elementos diagonales:</strong> $a_{ii} = 1 - d \cdot M_{ii}$. Dado que $M$ es estocástica, $0 \le M_{ii} \le 1$, por lo que $a_{ii} \ge 1 - d > 0$. Para grafos sin auto-enlaces ($M_{ii} = 0$), $a_{ii} = 1$.
-              </li>
-              <li>
-                <strong>Dominancia por columnas:</strong> Para cada columna $j$, la suma de elementos fuera de la diagonal es:
-                $\sum_{i \ne j} |a_{ij}| = d \sum_{i \ne j} M_{ij} = d (1 - M_{jj})$.
-                Comparando con el elemento diagonal:
-                $|a_{jj}| - \sum_{i \ne j} |a_{ij}| = (1 - d M_{jj}) - d(1 - M_{jj}) = 1 - d > 0$.
-                Por lo tanto, la matriz $A$ es <strong>estrictamente diagonal dominante por columnas</strong> con un margen garantizado de al menos $1 - d$.
-              </li>
-              <li>
-                <strong>Radio Espectral:</strong> La matriz de iteración de Gauss-Seidel $T_{GS} = -(D + L)^{-1} U$ tiene un radio espectral acotado por $\rho(T_{GS}) \le d < 1$. Esto garantiza convergencia incondicional para cualquier vector inicial $r^{(0)}$.
-              </li>
-            </ul>
-          </div>
-
-          <!-- Section 4 -->
-          <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col gap-3">
-            <h4 class="font-heading font-semibold text-base text-amber-400">4. Algoritmo de Doolittle vs Gauss-Seidel en la Práctica</h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-              <div class="p-3 bg-slate-950 rounded-lg border border-slate-800">
-                <strong class="text-indigo-400 block mb-1">Factorización LU (Doolittle):</strong>
-                Ideal para sistemas pequeños a medianos densos ($N \le 1000$). Permite resolver con múltiples vectores independientes de forma inmediata. Sin embargo, su complejidad de $O(N^3)$ y la destrucción de la dispersión de la matriz la vuelven impracticable para grafos de la escala de la web real.
-              </div>
-              <div class="p-3 bg-slate-950 rounded-lg border border-slate-800">
-                <strong class="text-sky-400 block mb-1">Método Iterativo Gauss-Seidel:</strong>
-                Excelente para sistemas de gran escala donde la matriz es altamente dispersa (cada página sólo enlaza a unas pocas decenas). El costo por iteración es $O(|E|)$ aristas en vez de $O(N^2)$, y no requiere almacenar matrices adicionales completas.
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
-
   </main>
 
   <!-- FOOTER -->
   <footer class="glass-header mt-auto border-t border-slate-800/80 px-6 py-4 text-center text-xs text-slate-500">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
       <span>Taller de Métodos Numéricos • Ciclo 2026-2 • Proyecto Integrador PageRank</span>
-      <span class="text-slate-400">Modelado matemático canónico A·r = b</span>
+      <span class="text-slate-400">Arquitectura Dual: Simulador Numérico & Exposición Oral (15 Min)</span>
     </div>
   </footer>
 
@@ -663,14 +1126,12 @@
       <div class="flex flex-col gap-3">
         <div>
           <label for="select-edge-from" class="text-xs text-slate-300 font-medium">Página Origen (Apunta desde):</label>
-          <select id="select-edge-from" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-slate-200">
-          </select>
+          <select id="select-edge-from" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-slate-200"></select>
         </div>
 
         <div>
           <label for="select-edge-to" class="text-xs text-slate-300 font-medium">Página Destino (Apunta hacia):</label>
-          <select id="select-edge-to" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-slate-200">
-          </select>
+          <select id="select-edge-to" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-slate-200"></select>
         </div>
       </div>
 
@@ -697,15 +1158,15 @@
 
         <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
           <strong class="text-white block font-medium">Tema:</strong>
-          <span>Algoritmo PageRank de Google formulado como un Sistema de Ecuaciones Lineales Canónico A·r = b</span>
+          <span>Algoritmo PageRank formulado como el Sistema Canónico A·r = b (Gauss-Seidel vs Factorización LU)</span>
         </div>
 
         <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
           <strong class="text-white block font-medium">Objetivos:</strong>
           <ul class="list-disc pl-4 space-y-1 mt-1 text-slate-400">
-            <li>Demostrar la convergencia incondicional del método iterativo de Gauss-Seidel mediante el factor de amortiguamiento d.</li>
-            <li>Contrastar el error residual y tiempo de ejecución contra la Factorización LU directa de Doolittle.</li>
-            <li>Brindar una herramienta pedagógica e interactiva para la cátedra.</li>
+            <li>Demostrar analítica y numéricamente la convergencia incondicional de Gauss-Seidel gracias al factor $d$.</li>
+            <li>Contrastar el error residual, tiempo de cómputo y escalabilidad frente a la Factorización LU directa.</li>
+            <li>Brindar una herramienta pedagógica dual con simulador interactivo y modo de defensa oral de 15 minutos con KaTeX.</li>
           </ul>
         </div>
       </div>

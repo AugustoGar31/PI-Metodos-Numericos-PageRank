@@ -1,5 +1,5 @@
 /* styles.css - PageRank Studio: Métodos Numéricos 2026-2 */
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
   --bg-main: #0b0f19;
@@ -147,4 +147,114 @@ code, pre, .font-mono {
   color: #38bdf8;
   border-color: #38bdf8;
   background: rgba(56, 189, 248, 0.1);
+}
+
+/* ========================================================
+   MODO EXPOSICIÓN ORAL (STORYTELLING & DIVULGACIÓN)
+   ======================================================== */
+
+/* KaTeX Global Styling */
+.katex-display {
+  margin: 0.75rem 0 !important;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25rem 0;
+}
+
+.katex {
+  font-size: 1.15em;
+  color: #f8fafc;
+  text-rendering: optimizeLegibility;
+}
+
+/* Slide Deck Viewport */
+.presentation-viewport {
+  min-height: calc(100vh - 165px);
+  position: relative;
+}
+
+.presentation-slide {
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideFadeIn 0.35s ease-out;
+}
+
+@keyframes slideFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Storytelling Cards */
+.story-card {
+  background: radial-gradient(circle at top left, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.story-card:hover {
+  border-color: rgba(56, 189, 248, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Story Quote Highlight */
+.story-quote {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%);
+  border-left: 4px solid #38bdf8;
+  border-radius: 0 1rem 1rem 0;
+}
+
+/* Analogy Box (Agua y Vasos Comunicantes) */
+.analogy-water {
+  background: radial-gradient(circle at 50% 0%, rgba(14, 165, 233, 0.18), rgba(15, 23, 42, 0.95));
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  box-shadow: 0 15px 35px -10px rgba(14, 165, 233, 0.2);
+}
+
+/* Giant CTA Button */
+.giant-cta {
+  background: linear-gradient(135deg, #0284c7 0%, #4f46e5 50%, #9333ea 100%);
+  box-shadow: 0 10px 30px -5px rgba(79, 70, 229, 0.5);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.giant-cta:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 15px 40px -5px rgba(79, 70, 229, 0.7);
+}
+
+/* Tipografía de Alto Impacto para Proyección en Aula (Auditorio) */
+.presentation-slide h2 {
+  font-size: clamp(2rem, 4vw, 3rem); /* >= 32px */
+  line-height: 1.2;
+}
+
+.presentation-slide h3 {
+  font-size: clamp(1.75rem, 3vw, 2.25rem); /* >= 28px - 36px */
+  line-height: 1.25;
+}
+
+.presentation-slide p {
+  font-size: 1.125rem; /* 18px para lectura nítida desde el fondo */
+  line-height: 1.7;
+}
+
+.presentation-slide .story-card p,
+.presentation-slide .story-card span {
+  font-size: 0.95rem; /* Ajustado para tarjetas multilínea */
+  line-height: 1.6;
+}
+
+/* Fullscreen projection adjustments */
+:fullscreen body, :-webkit-full-screen body {
+  background-color: #0b0f19;
+}
+
+:fullscreen .presentation-viewport, :-webkit-full-screen .presentation-viewport {
+  min-height: calc(100vh - 110px);
 }

@@ -1,6 +1,7 @@
 /**
  * app.js
  * Controlador Principal y Orquestador del Sistema PageRank Studio
+ * Arquitectura Dual: Simulador Numérico & Exposición Oral (15 Min)
  * Proyecto Integrador - Métodos Numéricos 2026-2
  */
 
@@ -9,10 +10,14 @@ import { solveGaussSeidel } from './math/gaussSeidel.js';
 import { solveLU } from './math/lu.js';
 import { PRESETS, generateRandomGraph } from './graph/presets.js';
 import { GraphManager } from './graph/graphManager.js';
+import { PresentationManager, renderMathInElementSafely } from './presentation/presentationManager.js';
 
 class PageRankApp {
   constructor() {
     this.graphManager = null;
+    this.presentationManager = null;
+    this.currentView = 'lab'; // 'lab' | 'presentation'
+
     this.currentPresetKey = 'catedra4';
     this.dampingFactor = 0.85;
     this.tolerance = 1e-5;
@@ -28,19 +33,31 @@ class PageRankApp {
 
     this.initDOMReferences();
     this.initGraphManager();
+    this.initPresentationManager();
     this.bindEvents();
     
     // Cargar preset inicial y calcular automáticamente
     this.loadPreset('catedra4');
+
+    // Renderizado inicial de KaTeX en la pestaña teórica
+    setTimeout(() => {
+      renderMathInElementSafely(document.body);
+    }, 200);
   }
 
   /**
    * Obtiene referencias a los elementos del DOM
    */
   initDOMReferences() {
+    // Vistas Principales (Arquitectura Dual)
+    this.navBtnLab = document.getElementById('nav-btn-lab');
+    this.navBtnPresentation = document.getElementById('nav-btn-presentation');
+    this.labSection = document.getElementById('lab-section');
+    this.presentationSection = document.getElementById('presentation-section');
+    this.btnToggleFullscreen = document.getElementById('btn-toggle-fullscreen');
+
     // Header & Global Controls
     this.presetSelect = document.getElementById('preset-select');
-    this.btnRandomGraph = document.getElementById('btn-random-graph');
     this.btnCalculate = document.getElementById('btn-calculate');
     this.btnOpenTeam = document.getElementById('btn-open-team');
 
@@ -127,7 +144,24 @@ class PageRankApp {
         this.updateMatrixSystem();
       },
       onSelectionChange: (selectedNodeId) => {
-        // Podría resaltarse en la matriz o tabla si se desea
+        // Callback para selecciones interactivas
+      }
+    });
+  }
+
+  /**
+   * Inicializa el Gestor de la Presentación de 15 Minutos
+   */
+  initPresentationManager() {
+    this.presentationManager = new PresentationManager({
+      onJumpToLab: (presetKey) => {
+        this.switchView('lab');
+        if (presetKey) {
+          if (this.presetSelect) {
+            this.presetSelect.value = presetKey;
+          }
+          this.loadPreset(presetKey);
+        }
       }
     });
   }
@@ -136,21 +170,29 @@ class PageRankApp {
    * Asocia listeners de eventos a los controles de la UI
    */
   bindEvents() {
+    // Selector de Vista Dual (Simulador vs Presentación)
+    if (this.navBtnLab) {
+      this.navBtnLab.addEventListener('click', () => this.switchView('lab'));
+    }
+    if (this.navBtnPresentation) {
+      this.navBtnPresentation.addEventListener('click', () => this.switchView('presentation'));
+    }
+
+    // Toggle Pantalla Completa
+    if (this.btnToggleFullscreen) {
+      this.btnToggleFullscreen.addEventListener('click', () => this.toggleFullscreen());
+    }
+
     // Preset Selector
     this.presetSelect.addEventListener('change', (e) => {
       this.loadPreset(e.target.value);
     });
 
-    // Random Graph Button
-    this.btnRandomGraph.addEventListener('click', () => {
-      const randomPreset = generateRandomGraph(6, 0.35);
-      this.graphManager.loadPreset(randomPreset);
-      this.updateNetworkStats();
-      this.calculatePageRank();
-    });
-
     // Calculate Button
     this.btnCalculate.addEventListener('click', () => {
+      if (this.currentView !== 'lab') {
+        this.switchView('lab');
+      }
       this.calculatePageRank();
     });
 
@@ -234,9 +276,63 @@ class PageRankApp {
     // Atajo de teclado: Espacio o Enter con Ctrl para recalcular
     window.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        if (this.currentView !== 'lab') this.switchView('lab');
         this.calculatePageRank();
       }
     });
+  }
+
+  /**
+   * Conmuta entre la vista del Laboratorio Numérico y la Exposición Oral
+   * @param {'lab'|'presentation'} view 
+   */
+  switchView(view) {
+    this.currentView = view;
+
+    if (view === 'lab') {
+      this.labSection.classList.remove('hidden');
+      this.presentationSection.classList.add('hidden');
+      this.presentationSection.classList.remove('flex');
+
+      this.navBtnLab.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all text-sky-400 bg-sky-500/20 shadow-sm border border-sky-500/30';
+      this.navBtnPresentation.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all text-slate-400 hover:text-slate-200 border-transparent';
+
+      // Reajustar dimensiones de la red
+      setTimeout(() => {
+        this.graphManager.fitNetwork();
+        if (this.convergenceChart) this.convergenceChart.resize();
+        if (this.scoresChart) this.scoresChart.resize();
+      }, 100);
+    } else {
+      this.labSection.classList.add('hidden');
+      this.presentationSection.classList.remove('hidden');
+      this.presentationSection.classList.add('flex');
+
+      this.navBtnPresentation.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all text-amber-400 bg-amber-500/20 shadow-sm border border-amber-500/30';
+      this.navBtnLab.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all text-slate-400 hover:text-slate-200 border-transparent';
+
+      // Refrescar KaTeX en la diapositiva actual
+      setTimeout(() => {
+        if (this.presentationManager) {
+          this.presentationManager.refreshMathRendering();
+        }
+      }, 50);
+    }
+  }
+
+  /**
+   * Alterna el modo pantalla completa para proyectar en el aula
+   */
+  toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.warn('Error al activar pantalla completa:', err);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
   }
 
   /**
@@ -340,7 +436,6 @@ class PageRankApp {
     const { A, M, b, nodeLabels, N } = this.currentSystem;
 
     if (this.selectedMatrixTab === 'b') {
-      // Vector b
       let html = '<table class="border-collapse text-[11px] font-mono mx-auto">';
       html += '<thead><tr class="text-slate-400 border-b border-slate-800"><th class="px-2 py-1">Nodo</th><th class="px-2 py-1">Término Independiente bᵢ</th></tr></thead><tbody>';
       for (let i = 0; i < N; i++) {
@@ -357,14 +452,12 @@ class PageRankApp {
     const matrixToDisplay = this.selectedMatrixTab === 'A' ? A : M;
     let html = '<div class="overflow-x-auto"><table class="border-collapse text-[11px] font-mono">';
     
-    // Encabezado de columnas
     html += '<thead><tr class="text-slate-400 border-b border-slate-800"><th class="px-2 py-1 text-slate-500">i \\ j</th>';
     for (let j = 0; j < N; j++) {
       html += `<th class="px-2 py-1 text-center font-semibold text-slate-300">${nodeLabels[j]}</th>`;
     }
     html += '</tr></thead><tbody>';
 
-    // Filas
     for (let i = 0; i < N; i++) {
       html += `<tr class="border-b border-slate-900/60 hover:bg-slate-900/40">`;
       html += `<td class="px-2 py-1 font-semibold text-slate-300">${nodeLabels[i]}</td>`;
@@ -408,8 +501,7 @@ class PageRankApp {
     const luResult = solveLU(A, b);
     this.currentLUResult = luResult;
 
-    // 3. Actualizar Visualización del Grafo con los puntajes de PageRank
-    // Usamos la solución de LU (o Gauss-Seidel convergente) para el grafo
+    // 3. Actualizar Visualización del Grafo
     this.graphManager.updateGraphVisualization(luResult.solution);
 
     // 4. Renderizar resultados en las pestañas
@@ -440,7 +532,6 @@ class PageRankApp {
     this.metricGsTime.textContent = `${result.executionTimeMs.toFixed(3)} ms`;
     this.metricGsResidual.textContent = result.residualNorm.toExponential(4);
 
-    // Construcción dinámica de la Tabla Paso a Paso
     const n = nodeLabels.length;
     let tableHtml = '<thead><tr><th class="px-3 py-2">Iter (k)</th>';
     for (let i = 0; i < n; i++) {
@@ -487,20 +578,15 @@ class PageRankApp {
     const sumVal = result.solution.reduce((a, b) => a + b, 0);
     this.metricLuSum.textContent = sumVal.toFixed(6);
 
-    // Matriz L
     this.containerMatrixL.innerHTML = this.formatSquareMatrixHTML(result.L, nodeLabels, 'L');
-
-    // Matriz U
     this.containerMatrixU.innerHTML = this.formatSquareMatrixHTML(result.U, nodeLabels, 'U');
 
-    // Pasos de sustitución hacia adelante Ly = b
     let fwdHtml = '';
     result.steps.forward.forEach(step => {
       fwdHtml += `<div class="bg-slate-900/60 p-1.5 rounded border border-slate-800/80 text-sky-300">${step}</div>`;
     });
     this.stepsForwardSub.innerHTML = fwdHtml || '<span class="text-slate-500">Sin pasos</span>';
 
-    // Pasos de sustitución hacia atrás Ur = y
     let backHtml = '';
     result.steps.backward.forEach(step => {
       backHtml += `<div class="bg-slate-900/60 p-1.5 rounded border border-slate-800/80 text-indigo-300">${step}</div>`;
@@ -553,7 +639,7 @@ class PageRankApp {
    * Renderiza los gráficos interactivos de Chart.js
    */
   renderCharts(gsResult, luResult, nodeLabels) {
-    // 1. Gráfico de Convergencia (Log10 Error vs Iteración)
+    // 1. Gráfico de Convergencia
     const ctxConv = document.getElementById('chart-convergence').getContext('2d');
     if (this.convergenceChart) {
       this.convergenceChart.destroy();
@@ -622,7 +708,7 @@ class PageRankApp {
       }
     });
 
-    // 2. Gráfico de Distribución Comparativa de PageRank (Barras)
+    // 2. Gráfico de Distribución Comparativa de PageRank
     const ctxScores = document.getElementById('chart-scores-distribution').getContext('2d');
     if (this.scoresChart) {
       this.scoresChart.destroy();
@@ -738,11 +824,14 @@ class PageRankApp {
       }
     });
 
-    // Re-render charts si se pasa a comparison para asegurar dimensiones correctas
     if (tab === 'comparison' && this.convergenceChart && this.scoresChart) {
       setTimeout(() => {
         this.convergenceChart.resize();
         this.scoresChart.resize();
+      }, 50);
+    } else if (tab === 'theory') {
+      setTimeout(() => {
+        renderMathInElementSafely(this.tabContentTheory);
       }, 50);
     }
   }
@@ -768,7 +857,6 @@ class PageRankApp {
     this.selectEdgeFrom.innerHTML = optionsFrom;
     this.selectEdgeTo.innerHTML = optionsTo;
 
-    // Seleccionar destino diferente por conveniencia
     if (this.selectEdgeTo.options.length > 1) {
       this.selectEdgeTo.selectedIndex = 1;
     }
@@ -822,7 +910,6 @@ class PageRankApp {
 
     let csvContent = 'data:text/csv;charset=utf-8,';
     
-    // Encabezados
     const headers = ['Iteracion'];
     for (let i = 0; i < N; i++) {
       headers.push(`X_${nodeLabels[i]}`);
@@ -831,7 +918,6 @@ class PageRankApp {
     headers.push('Error_Maximo');
     csvContent += headers.join(',') + '\r\n';
 
-    // Filas
     history.forEach(step => {
       const row = [step.iter];
       for (let i = 0; i < N; i++) {
