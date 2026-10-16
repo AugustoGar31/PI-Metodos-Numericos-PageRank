@@ -49,7 +49,7 @@ Luego abre en tu navegador:
   - **⚖️ Acto 4: La Batalla Numérica y Cierre (Min 12 a 15 - Diapositivas 7-9)**:
     - *Slide 7 (La Batalla)*: ¿Fuerza bruta matricial ($\text{LU}$ en $\mathcal{O}(N^2)$ memoria RAM imposible en la web masiva) o equilibrio natural de fluidos ($\text{Gauss-Seidel}$ en $\mathcal{O}(N)$ autocorrección escalable a nivel planetario)?
     - *Slide 8 (Aprendizajes de Ingeniería)*: De la realidad al sistema $A\vec{r}=\vec{b}$, valor de los métodos iterativos en Big Data, control con criterio de parada $E_a < \varepsilon$ y nota de transparencia académica.
-    - *Slide 9 (Preguntas del Tribunal)*: Espacio abierto para evaluar dudas, probar grafos arbitrarios propuestos por el jurado docente, con enlaces directos al Repositorio de GitHub y despliegue online en GitHub Pages.
+    - *Slide 9 (Cierre y Agradecimiento)*: "¡Muchas Gracias por su Atención! Esperamos que les haya gustado", con enlace directo al Repositorio de GitHub.
 - **Renderizado Matemático KaTeX**: Expresiones nítidas, limpias y sin sobrecarga innecesaria en pantalla.
 - **Control por Teclado y Pantalla Completa**: Navegación ágil con flechas `← / →`, barra espaciadora y modo proyector.
 
