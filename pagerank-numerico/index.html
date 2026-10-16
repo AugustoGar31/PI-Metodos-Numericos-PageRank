@@ -83,6 +83,11 @@
 
       <!-- ACCIONES GLOBALES RÁPIDAS -->
       <div class="flex items-center gap-2">
+        <!-- Enlace Directo a Cálculos Paso a Paso -->
+        <a href="./paso-a-paso/red-4-paginas.html" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 shadow-sm" title="Abrir desglose matemático paso a paso">
+          <span>📐</span>
+          <span class="hidden sm:inline">Cálculos Paso a Paso</span>
+        </a>
         <!-- Preset Selector (Accesible en Lab) -->
         <div id="top-preset-container" class="relative hidden md:block">
           <select id="preset-select" class="bg-slate-900 border border-slate-700 hover:border-slate-600 rounded-lg text-xs px-2.5 py-1.5 text-slate-200 focus:outline-none focus:ring-1 focus:ring-sky-500 transition-all cursor-pointer">
@@ -429,34 +434,52 @@
 
           <!-- Tarjetas de Casos de Estudio -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
-            <div class="story-card p-4 rounded-2xl flex flex-col justify-between gap-2 border-sky-500/30">
+            <div class="story-card p-4 rounded-2xl flex flex-col justify-between gap-3 border-sky-500/30">
               <div>
                 <span class="text-xs text-sky-400 font-bold block mb-1">1. La Red de 4 Páginas</span>
-                <p class="text-xs text-slate-300">Ver cómo los votos viajan y las páginas crecen en tamaño hasta estabilizarse.</p>
+                <p class="text-xs text-slate-300 leading-relaxed">Ver cómo los votos viajan y las páginas crecen en tamaño hasta estabilizarse.</p>
               </div>
-              <button data-jump-lab="catedra4" type="button" class="text-xs font-semibold text-sky-400 hover:text-sky-300 text-left pt-2">
-                Simular Caso 4 Nodos &rarr;
-              </button>
+              <div class="flex flex-col gap-2 pt-2 border-t border-slate-800">
+                <button data-jump-lab="catedra4" type="button" class="text-xs font-semibold text-sky-400 hover:text-sky-300 text-left flex items-center justify-between group">
+                  <span>🚀 Simular Grafo en Vivo</span>
+                  <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+                </button>
+                <a href="./paso-a-paso/red-4-paginas.html" target="_blank" rel="noopener noreferrer" class="text-[11px] font-semibold text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-2.5 py-1.5 rounded-lg text-center transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                  <span>📐 Ver Cálculos Paso a Paso</span>
+                </a>
+              </div>
             </div>
 
-            <div class="story-card p-4 rounded-2xl flex flex-col justify-between gap-2 border-purple-500/30">
+            <div class="story-card p-4 rounded-2xl flex flex-col justify-between gap-3 border-purple-500/30">
               <div>
                 <span class="text-xs text-purple-400 font-bold block mb-1">2. El Efecto Influencer (Hub)</span>
-                <p class="text-xs text-slate-300">Una página que concentra la atención de todas y se vuelve el centro neurálgico.</p>
+                <p class="text-xs text-slate-300 leading-relaxed">Una página que concentra la atención de todas y se vuelve el centro neurálgico.</p>
               </div>
-              <button data-jump-lab="starHub" type="button" class="text-xs font-semibold text-purple-400 hover:text-purple-300 text-left pt-2">
-                Simular Red Estrella &rarr;
-              </button>
+              <div class="flex flex-col gap-2 pt-2 border-t border-slate-800">
+                <button data-jump-lab="starHub" type="button" class="text-xs font-semibold text-purple-400 hover:text-purple-300 text-left flex items-center justify-between group">
+                  <span>🚀 Simular Grafo en Vivo</span>
+                  <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+                </button>
+                <a href="./paso-a-paso/efecto-hub.html" target="_blank" rel="noopener noreferrer" class="text-[11px] font-semibold text-purple-300 hover:text-purple-200 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 px-2.5 py-1.5 rounded-lg text-center transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                  <span>📐 Ver Cálculos Paso a Paso</span>
+                </a>
+              </div>
             </div>
 
-            <div class="story-card p-4 rounded-2xl flex flex-col justify-between gap-2 border-amber-500/30">
+            <div class="story-card p-4 rounded-2xl flex flex-col justify-between gap-3 border-amber-500/30">
               <div>
                 <span class="text-xs text-amber-400 font-bold block mb-1">3. La Trampa Rota</span>
-                <p class="text-xs text-slate-300">Demostrar en vivo cómo el 15% de azar evita que la red colapse en un agujero negro.</p>
+                <p class="text-xs text-slate-300 leading-relaxed">Demostrar en vivo cómo el 15% de azar evita que la red colapse en un agujero negro.</p>
               </div>
-              <button data-jump-lab="spiderTrap" type="button" class="text-xs font-semibold text-amber-400 hover:text-amber-300 text-left pt-2">
-                Simular Spider Trap &rarr;
-              </button>
+              <div class="flex flex-col gap-2 pt-2 border-t border-slate-800">
+                <button data-jump-lab="spiderTrap" type="button" class="text-xs font-semibold text-amber-400 hover:text-amber-300 text-left flex items-center justify-between group">
+                  <span>🚀 Simular Grafo en Vivo</span>
+                  <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+                </button>
+                <a href="./paso-a-paso/spider-trap.html" target="_blank" rel="noopener noreferrer" class="text-[11px] font-semibold text-rose-300 hover:text-rose-200 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 px-2.5 py-1.5 rounded-lg text-center transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                  <span>📐 Ver Cálculos Paso a Paso</span>
+                </a>
+              </div>
             </div>
           </div>
 

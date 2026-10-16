@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paso a Paso Matemático: Caso 2 - El Efecto Influencer (Hub) | Cátedra F</title>
+  <meta name="description" content="Desglose matemático riguroso y didáctico paso a paso del Algoritmo PageRank para la Red Centralizada en Estrella: concentración de autoridad y aceleración de convergencia.">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#f0f9ff', 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7', 900: '#0c4a6e' }
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- KaTeX CSS & JS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+
+  <style>
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .glass-card {
+      background: radial-gradient(circle at top left, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.95));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+    .katex-display { margin: 0.6rem 0 !important; overflow-x: auto; overflow-y: hidden; }
+  </style>
+</head>
+<body class="bg-[#0b0f19] text-slate-100 min-h-screen flex flex-col">
+
+  <!-- TOP BAR NAVEGACIÓN -->
+  <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <a href="../index.html" class="flex items-center gap-2 text-sky-400 hover:text-sky-300 font-semibold text-xs transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+          Volver a la Presentación
+        </a>
+        <span class="text-slate-600">|</span>
+        <span class="text-xs font-mono text-amber-300 font-bold bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 rounded-full">
+          🏛️ CÁTEDRA F • MÉTODOS NUMÉRICOS
+        </span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="../index.html" class="bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs px-3.5 py-1.5 rounded-lg transition-all shadow-md flex items-center gap-1.5">
+          <span>🚀 Abrir en Simulador</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- SELECTOR DE CASOS (TABS INTERACTIVAS) -->
+  <nav class="bg-slate-900/40 border-b border-slate-800/60 py-3">
+    <div class="max-w-6xl mx-auto px-4 flex flex-wrap items-center justify-center gap-2">
+      <span class="text-xs font-mono text-slate-400 uppercase tracking-wider mr-2">Elegir Caso de Estudio:</span>
+      <a href="red-4-paginas.html" class="px-4 py-1.5 rounded-xl text-xs font-semibold transition-all bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700">
+        &larr; 1. Red Canónica de 4 Páginas
+      </a>
+      <a href="efecto-hub.html" class="px-4 py-1.5 rounded-xl text-xs font-bold transition-all bg-purple-500 text-white shadow-lg shadow-purple-500/20 border border-purple-400">
+        2. El Efecto Influencer (Hub) (Activo)
+      </a>
+      <a href="spider-trap.html" class="px-4 py-1.5 rounded-xl text-xs font-semibold transition-all bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700">
+        3. La Trampa Rota (Spider Trap) &rarr;
+      </a>
+    </div>
+  </nav>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="max-w-5xl mx-auto px-4 py-8 flex-1 flex flex-col gap-8">
+
+    <!-- ENCABEZADO DEL CASO -->
+    <section class="text-center flex flex-col gap-2">
+      <div class="inline-flex items-center gap-2 mx-auto px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-mono">
+        <span>CASO 2 DE LA DIAPOSITIVA 6</span>
+      </div>
+      <h1 class="font-black text-2xl sm:text-4xl text-white tracking-tight">
+        Paso a Paso Matemático: El Efecto Influencer (Red Estrella / Hub)
+      </h1>
+      <p class="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto">
+        Cómo el álgebra matricial explica que una página central concentre la inmensa mayoría de las búsquedas en internet, y qué ocurre matemáticamente con los sitios sin enlaces entrantes.
+      </p>
+    </section>
+
+    <!-- PASO 1: TOPOLOGÍA EN ESTRELLA -->
+    <article class="glass-card p-6 sm:p-8 rounded-3xl flex flex-col gap-4 border-l-4 border-l-purple-500">
+      <div class="flex items-center gap-3">
+        <span class="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 font-black flex items-center justify-center font-mono text-sm">1</span>
+        <h2 class="text-lg sm:text-xl font-bold text-white">Topología de la Red Centralizada ($N = 6$)</h2>
+      </div>
+      <p class="text-sm text-slate-300 leading-relaxed">
+        Tenemos 6 nodos. Cinco páginas periféricas $\{P_2, P_3, P_4, P_5, P_6\}$ apuntan masivamente hacia el nodo central <strong>$P_1$ (Hub)</strong>:
+      </p>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs text-left border-collapse border border-slate-800 rounded-xl overflow-hidden font-mono">
+          <thead class="bg-slate-800/80 text-slate-200 uppercase">
+            <tr>
+              <th class="p-3 border border-slate-700">Nodo ($j$)</th>
+              <th class="p-3 border border-slate-700">Rol en la Red</th>
+              <th class="p-3 border border-slate-700">Enlaces Salientes</th>
+              <th class="p-3 border border-slate-700">Grado $L_j$ y Reparto</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800 text-slate-300">
+            <tr class="bg-purple-500/10 font-bold text-purple-300">
+              <td class="p-3">$P_1$</td>
+              <td class="p-3">Nodo Central (Hub)</td>
+              <td class="p-3">Apunta a $P_2$</td>
+              <td class="p-3">$L_1 = 1 \implies 100\%$ a $P_2$</td>
+            </tr>
+            <tr>
+              <td class="p-3 text-sky-400 font-bold">$P_2$</td>
+              <td class="p-3">Periférico</td>
+              <td class="p-3">Apunta a $P_1$ y a $P_3$</td>
+              <td class="p-3">$L_2 = 2 \implies 1/2$ a $P_1$ y $1/2$ a $P_3$</td>
+            </tr>
+            <tr>
+              <td class="p-3 text-sky-400 font-bold">$P_3$</td>
+              <td class="p-3">Periférico</td>
+              <td class="p-3">Apunta a $P_1$</td>
+              <td class="p-3">$L_3 = 1 \implies 100\%$ a $P_1$</td>
+            </tr>
+            <tr>
+              <td class="p-3 text-sky-400 font-bold">$P_4$</td>
+              <td class="p-3">Periférico aislado</td>
+              <td class="p-3">Apunta a $P_1$</td>
+              <td class="p-3">$L_4 = 1 \implies 100\%$ a $P_1$</td>
+            </tr>
+            <tr>
+              <td class="p-3 text-sky-400 font-bold">$P_5$</td>
+              <td class="p-3">Periférico aislado</td>
+              <td class="p-3">Apunta a $P_1$</td>
+              <td class="p-3">$L_5 = 1 \implies 100\%$ a $P_1$</td>
+            </tr>
+            <tr>
+              <td class="p-3 text-sky-400 font-bold">$P_6$</td>
+              <td class="p-3">Periférico aislado</td>
+              <td class="p-3">Apunta a $P_1$</td>
+              <td class="p-3">$L_6 = 1 \implies 100\%$ a $P_1$</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <!-- PASO 2: MATRIZ DE TRANSICIÓN M -->
+    <article class="glass-card p-6 sm:p-8 rounded-3xl flex flex-col gap-4 border-l-4 border-l-indigo-500">
+      <div class="flex items-center gap-3">
+        <span class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 font-black flex items-center justify-center font-mono text-sm">2</span>
+        <h2 class="text-lg sm:text-xl font-bold text-white">Matriz de Transición de Hipervínculos ($M_{6 \times 6}$)</h2>
+      </div>
+      <p class="text-sm text-slate-300 leading-relaxed">
+        Observen la <strong>primera fila</strong>: $P_1$ recibe votos de prácticamente todas las columnas de la red:
+      </p>
+
+      <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 font-mono text-center text-xs sm:text-sm">
+        $$M = \begin{pmatrix}
+        0 & 1/2 & 1 & 1 & 1 & 1 \\
+        1 & 0 & 0 & 0 & 0 & 0 \\
+        0 & 1/2 & 0 & 0 & 0 & 0 \\
+        0 & 0 & 0 & 0 & 0 & 0 \\
+        0 & 0 & 0 & 0 & 0 & 0 \\
+        0 & 0 & 0 & 0 & 0 & 0
+        \end{pmatrix}$$
+      </div>
+
+      <div class="p-3 rounded-xl bg-purple-950/40 border border-purple-800/40 text-xs text-purple-200">
+        💡 <strong>Detalle para el Tribunal:</strong> Las filas 4, 5 y 6 están llenas de ceros. Esto significa que nadie enlaza hacia $P_4, P_5, P_6$. ¿Desaparecerán de internet con un PageRank de cero? ¡No! El factor $d$ salvará su existencia en el paso siguiente.
+      </div>
+    </article>
+
+    <!-- PASO 3: SISTEMA LINEAL CON AMORTIGUAMIENTO -->
+    <article class="glass-card p-6 sm:p-8 rounded-3xl flex flex-col gap-4 border-l-4 border-l-emerald-500">
+      <div class="flex items-center gap-3">
+        <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 font-black flex items-center justify-center font-mono text-sm">3</span>
+        <h2 class="text-lg sm:text-xl font-bold text-white">El Sistema Canónico $A\vec{r} = \vec{b}$ con $d = 0{,}85$</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
+        <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+          <span class="text-emerald-400 font-bold block mb-1">Término Independiente $\vec{b}$:</span>
+          $$b_i = \frac{1 - 0{,}85}{6} = \frac{0{,}15}{6} = \mathbf{0{,}025}$$
+          <p class="text-slate-400 mt-2 text-[11px] font-sans">
+            Cada página de la red recibe de base un piso mínimo de $2{,}5\%$ de presencia aleatoria, incluso si nadie la enlaza.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+          <span class="text-emerald-400 font-bold block mb-1">Ecuación Despejada para el Hub $P_1$:</span>
+          $$r_1 = 0{,}025 + 0{,}85 \cdot \left(\frac{1}{2}r_2 + r_3 + r_4 + r_5 + r_6\right)$$
+          <p class="text-slate-400 mt-2 text-[11px] font-sans">
+            Toda la masa de probabilidad de la red converge de forma multiplicativa hacia la ecuación de $P_1$.
+          </p>
+        </div>
+      </div>
+    </article>
+
+    <!-- PASO 4: ITERACIÓN A MANO CON GAUSS-SEIDEL -->
+    <article class="glass-card p-6 sm:p-8 rounded-3xl flex flex-col gap-4 border-l-4 border-l-amber-500">
+      <div class="flex items-center gap-3">
+        <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 font-black flex items-center justify-center font-mono text-sm">4</span>
+        <h2 class="text-lg sm:text-xl font-bold text-white">Primera Iteración a Mano ($k = 1$): El Gran Salto del Hub</h2>
+      </div>
+      <p class="text-sm text-slate-300 leading-relaxed">
+        Arrancamos con distribución uniforme equiprobable $\vec{r}^{(0)} = (1/6, 1/6, 1/6, 1/6, 1/6, 1/6)^T \approx 0{,}1667$:
+      </p>
+
+      <div class="bg-slate-900/90 p-5 rounded-2xl border border-slate-800 flex flex-col gap-3 font-mono text-xs sm:text-sm">
+        <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30">
+          <span class="text-amber-400 font-bold block mb-1">Cálculo de $r_1^{(1)}$ (Hub Central):</span>
+          $$r_1^{(1)} = 0{,}025 + 0{,}85 \cdot \left(0{,}5 \cdot 0{,}1667 + 0{,}1667 + 0{,}1667 + 0{,}1667 + 0{,}1667\right)$$
+          $$r_1^{(1)} = 0{,}025 + 0{,}85 \cdot (4{,}5 \cdot 0{,}1667) = 0{,}025 + 0{,}85 \cdot 0{,}75 = 0{,}025 + 0{,}6375 = \mathbf{0{,}6625}$$
+          <span class="text-amber-300 font-bold text-xs font-sans block mt-1">
+            🚀 ¡Impacto inmediato! En la primera iteración, $P_1$ salta de $16{,}67\%$ a $66{,}25\%$.
+          </span>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-800/40 border border-slate-700/50">
+          <span class="text-sky-400 font-bold block mb-1">Cálculo de $r_2^{(1)}$ (usa el nuevo $r_1^{(1)} = 0{,}6625$):</span>
+          $$r_2^{(1)} = 0{,}025 + 0{,}85 \cdot (1 \cdot r_1^{(1)}) = 0{,}025 + 0{,}85 \cdot (0{,}6625) = \mathbf{0{,}5881}$$
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-800/40 border border-slate-700/50">
+          <span class="text-sky-400 font-bold block mb-1">Cálculo de $r_4^{(1)}, r_5^{(1)}, r_6^{(1)}$ (Nodos sin enlaces entrantes):</span>
+          $$r_4^{(1)} = r_5^{(1)} = r_6^{(1)} = 0{,}025 + 0{,}85 \cdot (0) = \mathbf{0{,}0250}$$
+          <span class="text-slate-400 text-xs font-sans block mt-1">
+            Se mantienen exactamente en su valor basal $b_i = 0{,}025$ sin importar la cantidad de iteraciones.
+          </span>
+        </div>
+      </div>
+    </article>
+
+    <!-- PASO 5: RESULTADO FINAL Y CONCLUSIÓN -->
+    <article class="glass-card p-6 sm:p-8 rounded-3xl flex flex-col gap-4 border-l-4 border-l-purple-400">
+      <div class="flex items-center gap-3">
+        <span class="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 font-black flex items-center justify-center font-mono text-sm">5</span>
+        <h2 class="text-lg sm:text-xl font-bold text-white">Resultado Final y Ranking de la Red Estrella</h2>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-6 gap-2 text-center font-mono text-xs">
+        <div class="p-3 rounded-xl bg-amber-500/15 border border-amber-500/30 col-span-2 sm:col-span-2">
+          <span class="text-amber-400 font-bold block text-[11px]">👑 Hub Central</span>
+          <strong class="text-base text-white block my-0.5">$P_1$ (Hub)</strong>
+          <span class="text-amber-300 font-black text-sm">48{,}33%</span>
+        </div>
+
+        <div class="p-3 rounded-xl bg-sky-500/15 border border-sky-500/30 col-span-2 sm:col-span-2">
+          <span class="text-sky-400 font-bold block text-[11px]">🥈 Segundo Lugar</span>
+          <strong class="text-base text-white block my-0.5">$P_2$</strong>
+          <span class="text-sky-300 font-black text-sm">43{,}58%</span>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700">
+          <span class="text-slate-400 font-bold block text-[10px]">🥉 Tercero</span>
+          <strong class="text-sm text-white block my-0.5">$P_3$</strong>
+          <span class="text-purple-300 font-black">21{,}02%</span>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700">
+          <span class="text-slate-400 font-bold block text-[10px]">4° al 6°</span>
+          <strong class="text-sm text-white block my-0.5">$P_4, P_5, P_6$</strong>
+          <span class="text-slate-400 font-black">2{,}50% c/u</span>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-xs text-purple-200 mt-2">
+        🧠 <strong>Conclusión de Ingeniería:</strong> El Efecto Hub demuestra por qué Google se convirtió en un monopolio orgánico de información: cuando millones de páginas de calidad apuntan hacia un mismo dominio (ej. Wikipedia o un paper seminal), el álgebra lineal concentra la probabilidad de navegación en ese nodo, convirtiéndolo en una referencia inexpugnable.
+      </div>
+
+      <div class="pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-4">
+        <a href="red-4-paginas.html" class="text-xs text-slate-400 hover:text-white font-mono flex items-center gap-1.5">
+          <span>&larr; Volver al Caso 1</span>
+        </a>
+        <a href="spider-trap.html" class="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-lg transition-all">
+          <span>Ver Paso a Paso Caso 3: La Trampa Rota (Spider Trap)</span>
+          <span>&rarr;</span>
+        </a>
+      </div>
+    </article>
+
+  </main>
+
+  <footer class="border-t border-slate-800/80 py-4 text-center text-xs text-slate-500 font-mono">
+    Cátedra F • Taller de Métodos Numéricos • Ciclo Lectivo 2026-2 • Exposición de Proyecto Integrador
+  </footer>
+
+</body>
+</html>

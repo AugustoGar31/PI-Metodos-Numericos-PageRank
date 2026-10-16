@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paso a Paso Matemático: Caso 1 - Red Canónica de 4 Páginas | Cátedra F</title>
+  <meta name="description" content="Desglose matemático riguroso y didáctico paso a paso del Algoritmo PageRank para el caso de estudio de 4 páginas: de los hipervínculos a Gauss-Seidel y Factorización LU.">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#f0f9ff', 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7', 900: '#0c4a6e' }
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- KaTeX CSS & JS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+
+  <style>
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .glass-card {
+      background: radial-gradient(circle at top left, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.95));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+    .katex-display { margin: 0.6rem 0 !important; overflow-x: auto; overflow-y: hidden; }
+  </style>
+</head>
+<body class="bg-[#0b0f19] text-slate-100 min-h-screen flex flex-col">
+
+  <!-- TOP BAR NAVEGACIÓN -->
+  <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <a href="../index.html" class="flex items-center gap-2 text-sky-400 hover:text-sky-300 font-semibold text-xs transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+          Volver a la Presentación
+        </a>
+        <span class="text-slate-600">|</span>
+        <span class="text-xs font-mono text-amber-300 font-bold bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 rounded-full">
+          🏛️ CÁTEDRA F • MÉTODOS NUMÉRICOS
+        </span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="../index.html" class="bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs px-3.5 py-1.5 rounded-lg transition-all shadow-md flex items-center gap-1.5">
+          <span>🚀 Abrir en Simulador</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- SELECTOR DE CASOS (TABS INTERACTIVAS) -->
+  <nav class="bg-slate-900/40 border-b border-slate-800/60 py-3">
+    <div class="max-w-6xl mx-auto px-4 flex flex-wrap items-center justify-center gap-2">
+      <span class="text-xs font-mono text-slate-400 uppercase tracking-wider mr-2">Elegir Caso de Estudio:</span>
+      <a href="red-4-paginas.html" class="px-4 py-1.5 rounded-xl text-xs font-bold transition-all bg-sky-500 text-white shadow-lg shadow-sky-500/20 border border-sky-400">
+        1. Red Canónica de 4 Páginas (Activo)
+      </a>
+      <a href="efecto-hub.html" class="px-4 py-1.5 rounded-xl text-xs font-semibold transition-all bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700">
+        2. El Efecto Influencer (Hub) &rarr;
+      </a>
+      <a href="spider-trap.html" class="px-4 py-1.5 rounded-xl text-xs font-semibold transition-all bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700">
+        3. La Trampa Rota (Spider Trap) &rarr;
+      </a>
+    </div>
+  </nav>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="max-w-5xl mx-auto px-4 py-8 flex-1 flex flex-col gap-8">
+
+    <!-- ENCABEZADO DEL CASO -->
+    <section class="text-center flex flex-col gap-2">
+      <div class="inline-flex items-center gap-2 mx-auto px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-400 text-xs font-mono">
+        <span>CASO 1 DE LA DIAPOSITIVA 6</span>
+      </div>
+      <h1 class="font-black text-2xl sm:text-4xl text-white tracking-tight">
+        Paso a Paso Matemático: Red Canónica de 4 Páginas
+      </h1>
+      <p class="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto">
+        Demostración didáctica para exponer ante el tribunal cómo se pasa de los enlaces de internet al sistema canónico $A\vec{r} = \vec{b}$, iteración a mano con Gauss-Seidel y Factorización LU.
+      </p>
+    </section>
+
+    <!-- PASO 1: EL GRAFO Y LOS VOTOS -->
+    <article class="glass-card p-6 sm:p-8 rounded-3xl flex flex-col gap-4 border-l-4 border-l-sky-500">
+      <div class="flex items-center gap-3">
+        <span class="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-400 font-black flex items-center justify-center font-mono text-sm">1</span>
+        <h2 class="text-lg sm:text-xl font-bold text-white">Topología del Grafo y Dilución de Votos</h2>
+      </div>
+      <p class="text-sm text-slate-300 leading-relaxed">
+        Consideramos una red con $N = 4$ páginas web $\{P_1, P_2, P_3, P_4\}$. Cada página reparte equitativamente su autoridad entre sus enlaces salientes ($L_j$):
+      </p>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs text-left border-collapse border border-slate-800 rounded-xl overflow-hidden">
+          <thead class="bg-slate-800/80 text-slate-200 font-mono uppercase">
+            <tr>
+              <th class="p-3 border border-slate-700">Página Emisora ($j$)</th>
+              <th class="p-3 border border-slate-700">Páginas a las que Enlaza</th>
+              <th class="p-3 border border-slate-700">Grado Saliente ($L_j$)</th>
+              <th class="p-3 border border-slate-700">Valor de cada Voto ($\frac{1}{L_j}$)</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800 text-slate-300 font-mono">
+            <tr class="hover:bg-slate-800/30">
+              <td class="p-3 font-bold text-sky-400">$P_1$</td>
+              <td class="p-3">Apunta a $P_2$ y a $P_3$</td>
+              <td class="p-3">$L_1 = 2$</td>
+              <td class="p-3 text-amber-300">$\frac{1}{2} = 0{,}50$ para cada una</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30">
+              <td class="p-3 font-bold text-sky-400">$P_2$</td>
+              <td class="p-3">Apunta a $P_4$</td>
+              <td class="p-3">$L_2 = 1$</td>
+              <td class="p-3 text-amber-300">$1{,}00$ completo para $P_4$</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30">
+              <td class="p-3 font-bold text-sky-400">$P_3$</td>
+              <td class="p-3">Apunta a $P_1$, $P_2$ y $P_4$</td>
+              <td class="p-3">$L_3 = 3$</td>
+              <td class="p-3 text-amber-300">$\frac{1}{3} \approx 0{,}3333$ para cada una</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30">
+              <td class="p-3 font-bold text-sky-400">$P_4$</td>
+              <td class="p-3">Apunta a $P_3$</td>
+              <td class="p-3">$L_4 = 1$</td>
+              <td class="p-3 text-amber-300">$1{,}00$ completo para $P_3$</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <!-- PASO 2: CONSTRUCCIÓN DE LA MATRIZ DE TRANSICIÓN M -->
+    <article class="glass-card p-6 sm:p-8 rounded-3xl flex flex-col gap-4 border-l-4 border-l-indigo-500">
+      <div class="flex items-center gap-3">
+        <span class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 font-black flex items-center justify-center font-mono text-sm">2</span>
+        <h2 class="text-lg sm:text-xl font-bold text-white">Construcción de la Matriz de Transición de Hipervínculos ($M$)</h2>
+      </div>
+      <p class="text-sm text-slate-300 leading-relaxed">
+        Cada columna $j$ de la matriz representa qué fracción de autoridad envía la página $j$ a la fila $i$:
+      </p>
+
+      <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 font-mono text-center">
+        $$M = \begin{pmatrix}
+        0 & 0 & 1/3 & 0 \\
+        1/2 & 0 & 1/3 & 0 \\
+        1/2 & 0 & 0 & 1 \\
+        0 & 1 & 1/3 & 0
+        \end{pmatrix}$$
+      </div>
+
+      <div class="p-3 rounded-xl bg-sky-950/40 border border-sky-800/40 text-xs text-sky-200">
+        💡 <strong>Propiedad Estocástica por Columnas:</strong> Cada columna suma exactamente $1$ ($\sum_{i=1}^4 M_{ij} = 1$), lo que garantiza que la probabilidad total de navegación se conserve.
+      </div>
+    </article>
+
+    <!-- PASO 3: INYECCIÓN DE AMORTIGUAMIENTO Y SISTEMA LINEAL -->
+    <article class="glass-card p-6 sm:p-8 rounded-3xl flex flex-col gap-4 border-l-4 border-l-emerald-500">
+      <div class="flex items-center gap-3">
+        <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 font-black flex items-center justify-center font-mono text-sm">3</span>
+        <h2 class="text-lg sm:text-xl font-bold text-white">El Sistema Canónico $A\vec{r} = \vec{b}$ con Amortiguamiento $d = 0{,}85$</h2>
+      </div>
+      <p class="text-sm text-slate-300 leading-relaxed">
+        Incorporamos el 85% de navegación por enlaces y el 15% de teletransporte aleatorio. El problema autoreferencial $\vec{r} = d M \vec{r} + \frac{1-d}{N}\mathbf{1}$ se transforma en el sistema canónico:
+      </p>
+
+      <div class="text-center font-mono font-bold text-base sm:text-lg text-emerald-400 my-1">
+        $$(I - d \cdot M)\vec{r} = \vec{b} \iff A \cdot \vec{r} = \vec{b}$$
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
+        <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+          <span class="text-emerald-400 font-bold block mb-2">Término Independiente $\vec{b}$:</span>
+          $$b_i = \frac{1 - 0{,}85}{4} = \frac{0{,}15}{4} = 0{,}0375$$
+          $$\vec{b} = \begin{pmatrix} 0{,}0375 \\ 0{,}0375 \\ 0{,}0375 \\ 0{,}0375 \end{pmatrix}$$
+        </div>
+
+        <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+          <span class="text-emerald-400 font-bold block mb-2">Matriz del Sistema $A = I - 0{,}85 \cdot M$:</span>
+          $$A \approx \begin{pmatrix}
+          1 & 0 & -0{,}2833 & 0 \\
+          -0{,}4250 & 1 & -0{,}2833 & 0 \\
+          -0{,}4250 & 0 & 1 & -0{,}8500 \\
+          0 & -0{,}8500 & -0{,}2833 & 1
+          \end{pmatrix}$$
+        </div>
+      </div>
+
+      <!-- DEMOSTRACIÓN DE DOMINANCIA DIAGONAL -->
+      <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200 flex flex-col gap-1.5">
+        <span class="font-bold flex items-center gap-1.5 text-amber-300 font-mono uppercase tracking-wider">
+          <span>⚖️</span> Demostración de Convergencia Garantizada ante el Profesor:
+        </span>
+        <p class="leading-relaxed">
+          Para cada columna $j$, el elemento diagonal es $|a_{jj}| = 1$. La suma de los elementos restantes de la columna es:
+          $$\sum_{i \ne j} |a_{ij}| = d \sum_i M_{ij} = 0{,}85 \cdot 1 = 0{,}85$$
+          Como $1 > 0{,}85$, <strong>la matriz es estrictamente diagonal dominante por un margen asegurado de $0{,}15$</strong>. Esto garantiza formalmente que el radio espectral de Gauss-Seidel es $\rho(T_{GS}) < 1$ y convergerá incondicionalmente desde cualquier vector inicial.
+        </p>
+      </div>
+    </article>
+
+    <!-- PASO 4: ITERACIÓN A MANO CON GAUSS-SEIDEL -->
+    <article class="glass-card p-6 sm:p-8 rounded-3xl flex flex-col gap-4 border-l-4 border-l-amber-500">
+      <div class="flex items-center gap-3">
+        <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 font-black flex items-center justify-center font-mono text-sm">4</span>
+        <h2 class="text-lg sm:text-xl font-bold text-white">Primera Iteración a Mano con Gauss-Seidel ($k = 1$)</h2>
+      </div>
+      <p class="text-sm text-slate-300 leading-relaxed">
+        Partimos del vector uniforme equiprobable $\vec{r}^{(0)} = (0{,}25,\; 0{,}25,\; 0{,}25,\; 0{,}25)^T$. En Gauss-Seidel, <strong>cada valor recién calculado se sustituye de inmediato</strong> en las ecuaciones siguientes dentro de la misma ronda:
+      </p>
+
+      <div class="flex flex-col gap-3 font-mono text-xs sm:text-sm bg-slate-900/90 p-5 rounded-2xl border border-slate-800">
+        <!-- Ecuación 1 -->
+        <div class="p-3 rounded-xl bg-slate-800/40 border border-slate-700/50">
+          <span class="text-sky-400 font-bold block mb-1">Cálculo de $r_1^{(1)}$:</span>
+          $$r_1^{(1)} = 0{,}0375 + 0{,}28333 \cdot r_3^{(0)} = 0{,}0375 + 0{,}28333 \cdot (0{,}25) = \mathbf{0{,}10833}$$
+        </div>
+
+        <!-- Ecuación 2 -->
+        <div class="p-3 rounded-xl bg-slate-800/40 border border-slate-700/50">
+          <span class="text-sky-400 font-bold block mb-1">Cálculo de $r_2^{(1)}$ (usa el nuevo $r_1^{(1)} = 0{,}10833$ recién obtenido):</span>
+          $$r_2^{(1)} = 0{,}0375 + 0{,}4250 \cdot r_1^{(1)} + 0{,}28333 \cdot r_3^{(0)}$$
+          $$r_2^{(1)} = 0{,}0375 + 0{,}4250 \cdot (0{,}10833) + 0{,}28333 \cdot (0{,}25) = \mathbf{0{,}15437}$$
+        </div>
+
+        <!-- Ecuación 3 -->
+        <div class="p-3 rounded-xl bg-slate-800/40 border border-slate-700/50">
+          <span class="text-sky-400 font-bold block mb-1">Cálculo de $r_3^{(1)}$ (usa $r_1^{(1)} = 0{,}10833$ y $r_4^{(0)} = 0{,}25$):</span>
+          $$r_3^{(1)} = 0{,}0375 + 0{,}4250 \cdot r_1^{(1)} + 0{,}8500 \cdot r_4^{(0)}$$
+          $$r_3^{(1)} = 0{,}0375 + 0{,}4250 \cdot (0{,}10833) + 0{,}8500 \cdot (0{,}25) = \mathbf{0{,}29604}$$
+        </div>
+
+        <!-- Ecuación 4 -->
+        <div class="p-3 rounded-xl bg-slate-800/40 border border-slate-700/50">
+          <span class="text-sky-400 font-bold block mb-1">Cálculo de $r_4^{(1)}$ (usa los valores actualizados $r_2^{(1)} = 0{,}15437$ y $r_3^{(1)} = 0{,}29604$):</span>
+          $$r_4^{(1)} = 0{,}0375 + 0{,}8500 \cdot r_2^{(1)} + 0{,}28333 \cdot r_3^{(1)}$$
+          $$r_4^{(1)} = 0{,}0375 + 0{,}8500 \cdot (0{,}15437) + 0{,}28333 \cdot (0{,}29604) = \mathbf{0{,}25263}$$
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-300 font-mono">
+        <strong>Vector tras Iteración 1:</strong> $\vec{r}^{(1)} \approx (0{,}1083,\; 0{,}1544,\; 0{,}2960,\; 0{,}2526)^T$.<br>
+        <strong>Error Máximo en Iteración 1:</strong> $\max_i |r_i^{(1)} - r_i^{(0)}| = |0{,}1083 - 0{,}2500| = 0{,}1417 > 10^{-5}$ (el algoritmo continúa hasta converger en unas 18 rondas).
+      </div>
+    </article>
+
+    <!-- PASO 5: FACTORIZACIÓN LU DE DOOLITTLE -->
+    <article class="glass-card p-6 sm:p-8 rounded-3xl flex flex-col gap-4 border-l-4 border-l-purple-500">
+      <div class="flex items-center gap-3">
+        <span class="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 font-black flex items-center justify-center font-mono text-sm">5</span>
+        <h2 class="text-lg sm:text-xl font-bold text-white">Resolución Directa por Factorización LU ($A = L \cdot U$)</h2>
+      </div>
+      <p class="text-sm text-slate-300 leading-relaxed">
+        El método directo de Doolittle descompone la matriz $A$ en $L$ (triangular inferior con diagonal unitaria) y $U$ (triangular superior):
+      </p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono text-center">
+        <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+          <span class="text-purple-400 font-bold block mb-2">Matriz Triangular Inferior $L$:</span>
+          $$L = \begin{pmatrix}
+          1 & 0 & 0 & 0 \\
+          -0{,}4250 & 1 & 0 & 0 \\
+          -0{,}4250 & 0 & 1 & 0 \\
+          0 & -0{,}8500 & -0{,}5881 & 1
+          \end{pmatrix}$$
+        </div>
+
+        <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+          <span class="text-purple-400 font-bold block mb-2">Matriz Triangular Superior $U$:</span>
+          $$U = \begin{pmatrix}
+          1 & 0 & -0{,}2833 & 0 \\
+          0 & 1 & -0{,}4038 & 0 \\
+          0 & 0 & 0{,}8796 & -0{,}8500 \\
+          0 & 0 & 0 & 0{,}5001
+          \end{pmatrix}$$
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-300 leading-relaxed flex flex-col gap-2">
+        <p><strong>1. Sustitución Hacia Adelante ($L\vec{y} = \vec{b}$):</strong> Se despeja $y_1, y_2, y_3, y_4$ de arriba hacia abajo sin necesidad de invertir matrices.</p>
+        <p><strong>2. Sustitución Hacia Atrás ($U\vec{r} = \vec{y}$):</strong> Se despeja $r_4, r_3, r_2, r_1$ de abajo hacia arriba obteniendo el vector solución exacto.</p>
+      </div>
+    </article>
+
+    <!-- PASO 6: RESULTADO FINAL Y RANKING -->
+    <article class="glass-card p-6 sm:p-8 rounded-3xl flex flex-col gap-4 border-l-4 border-l-sky-400">
+      <div class="flex items-center gap-3">
+        <span class="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-400 font-black flex items-center justify-center font-mono text-sm">6</span>
+        <h2 class="text-lg sm:text-xl font-bold text-white">Resultado Final de Equilibrio y Ranking de Relevancia</h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-center font-mono">
+        <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30">
+          <span class="text-xs text-amber-400 font-bold block">🥇 Puesto 1</span>
+          <strong class="text-lg text-white block my-1">Página $P_3$</strong>
+          <span class="text-amber-300 text-sm font-black">39{,}36%</span>
+          <p class="text-[11px] text-slate-400 mt-1">Recibe voto de $P_1$ y el 100% de $P_4$.</p>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700">
+          <span class="text-xs text-slate-400 font-bold block">🥈 Puesto 2</span>
+          <strong class="text-lg text-white block my-1">Página $P_4$</strong>
+          <span class="text-sky-300 text-sm font-black">27{,}94%</span>
+          <p class="text-[11px] text-slate-400 mt-1">Recibe el 100% de $P_2$ y un tercio de $P_3$.</p>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700">
+          <span class="text-xs text-slate-400 font-bold block">🥉 Puesto 3</span>
+          <strong class="text-lg text-white block my-1">Página $P_2$</strong>
+          <span class="text-purple-300 text-sm font-black">17{,}80%</span>
+          <p class="text-[11px] text-slate-400 mt-1">Recibe la mitad de $P_1$ y un tercio de $P_3$.</p>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700">
+          <span class="text-xs text-slate-400 font-bold block">4° Puesto</span>
+          <strong class="text-lg text-white block my-1">Página $P_1$</strong>
+          <span class="text-slate-300 text-sm font-black">14{,}90%</span>
+          <p class="text-[11px] text-slate-400 mt-1">Solo recibe un tercio de $P_3$ y teletransporte.</p>
+        </div>
+      </div>
+
+      <div class="mt-4 pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-4">
+        <div class="text-xs text-slate-400 font-mono">
+          ✅ <strong>Concordancia:</strong> Gauss-Seidel y LU alcanzan la misma solución con residuo cuadrático $\|A\vec{r} - \vec{b}\|_2 < 10^{-6}$.
+        </div>
+        <a href="efecto-hub.html" class="inline-flex items-center gap-2 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-lg transition-all">
+          <span>Ver Paso a Paso Caso 2: El Efecto Influencer</span>
+          <span>&rarr;</span>
+        </a>
+      </div>
+    </article>
+
+  </main>
+
+  <footer class="border-t border-slate-800/80 py-4 text-center text-xs text-slate-500 font-mono">
+    Cátedra F • Taller de Métodos Numéricos • Ciclo Lectivo 2026-2 • Exposición de Proyecto Integrador
+  </footer>
+
+</body>
+</html>

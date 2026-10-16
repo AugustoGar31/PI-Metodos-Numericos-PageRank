@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paso a Paso Matemático: Caso 3 - La Trampa Rota (Spider Trap) | Cátedra F</title>
+  <meta name="description" content="Demostración matemática del fenómeno Spider Trap (Agujero Negro): colapso sin amortiguamiento y cómo el factor d rescata la red asegurando convergencia incondicional.">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#f0f9ff', 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7', 900: '#0c4a6e' }
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- KaTeX CSS & JS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+
+  <style>
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .glass-card {
+      background: radial-gradient(circle at top left, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.95));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+    .katex-display { margin: 0.6rem 0 !important; overflow-x: auto; overflow-y: hidden; }
+  </style>
+</head>
+<body class="bg-[#0b0f19] text-slate-100 min-h-screen flex flex-col">
+
+  <!-- TOP BAR NAVEGACIÓN -->
+  <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <a href="../index.html" class="flex items-center gap-2 text-sky-400 hover:text-sky-300 font-semibold text-xs transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+          Volver a la Presentación
+        </a>
+        <span class="text-slate-600">|</span>
+        <span class="text-xs font-mono text-amber-300 font-bold bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 rounded-full">
+          🏛️ CÁTEDRA F • MÉTODOS NUMÉRICOS
+        </span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="../index.html" class="bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs px-3.5 py-1.5 rounded-lg transition-all shadow-md flex items-center gap-1.5">
+          <span>🚀 Abrir en Simulador</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- SELECTOR DE CASOS (TABS INTERACTIVAS) -->
+  <nav class="bg-slate-900/40 border-b border-slate-800/60 py-3">
+    <div class="max-w-6xl mx-auto px-4 flex flex-wrap items-center justify-center gap-2">
+      <span class="text-xs font-mono text-slate-400 uppercase tracking-wider mr-2">Elegir Caso de Estudio:</span>
+      <a href="red-4-paginas.html" class="px-4 py-1.5 rounded-xl text-xs font-semibold transition-all bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700">
+        &larr; 1. Red Canónica de 4 Páginas
+      </a>
+      <a href="efecto-hub.html" class="px-4 py-1.5 rounded-xl text-xs font-semibold transition-all bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700">
+        &larr; 2. El Efecto Influencer (Hub)
+      </a>
+      <a href="spider-trap.html" class="px-4 py-1.5 rounded-xl text-xs font-bold transition-all bg-amber-500 text-white shadow-lg shadow-amber-500/20 border border-amber-400">
+        3. La Trampa Rota (Spider Trap) (Activo)
+      </a>
+    </div>
+  </nav>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="max-w-5xl mx-auto px-4 py-8 flex-1 flex flex-col gap-8">
+
+    <!-- ENCABEZADO DEL CASO -->
+    <section class="text-center flex flex-col gap-2">
+      <div class="inline-flex items-center gap-2 mx-auto px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-mono">
+        <span>CASO 3 DE LA DIAPOSITIVA 6</span>
+      </div>
+      <h1 class="font-black text-2xl sm:text-4xl text-white tracking-tight">
+        Paso a Paso Matemático: La Trampa Rota (Spider Trap)
+      </h1>
+      <p class="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto">
+        La demostración matemática que explica por qué internet colapsaría sin el amortiguamiento: cómo un bucle cerrado absorbe todo el rango y cómo el factor $d = 0{,}85$ rompe el agujero negro.
+      </p>
+    </section>
+
+    <!-- PASO 1: LA TRAMPA EN EL GRAFO -->
+    <article class="glass-card p-6 sm:p-8 rounded-3xl flex flex-col gap-4 border-l-4 border-l-rose-500">
+      <div class="flex items-center gap-3">
+        <span class="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 font-black flex items-center justify-center font-mono text-sm">1</span>
+        <h2 class="text-lg sm:text-xl font-bold text-white">Topología del Agujero Negro ($P_3 \leftrightarrow P_4$)</h2>
+      </div>
+      <p class="text-sm text-slate-300 leading-relaxed">
+        El flujo avanza linealmente de $P_1 \to P_2 \to P_3$. Pero una vez que el usuario llega a $P_3$ y $P_4$, **ambas páginas se apuntan únicamente entre sí**:
+      </p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono">
+        <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+          <span class="text-rose-400 font-bold block mb-1">Enlaces Dirigidos:</span>
+          <ul class="space-y-1 text-slate-300">
+            <li>• $P_1 \to P_2$ ($L_1 = 1$, reparte $100\%$ a $P_2$)</li>
+            <li>• $P_2 \to P_3$ ($L_2 = 1$, reparte $100\%$ a $P_3$)</li>
+            <li>• <strong class="text-rose-300">$P_3 \to P_4$ ($L_3 = 1$, reparte $100\%$ a $P_4$)</strong></li>
+            <li>• <strong class="text-rose-300">$P_4 \to P_3$ ($L_4 = 1$, reparte $100\%$ a $P_3$)</strong></li>
+          </ul>
+        </div>
+
+        <div class="bg-rose-950/20 p-4 rounded-xl border border-rose-800/40 text-rose-200 flex flex-col justify-center">
+          <span class="font-bold block mb-1">🚨 La Anomalía del Sumidero:</span>
+          <p class="leading-relaxed text-[11px]">
+            Ningún enlace sale desde $\{P_3, P_4\}$ hacia el exterior. En términos físicos de fluidos, es un pozo o sumidero sin desagüe: el agua entra, pero nunca puede volver a $P_1$ o $P_2$.
+          </p>
+        </div>
+      </div>
+    </article>
+
+    <!-- PASO 2: EL COLAPSO SIN AMORTIGUAMIENTO -->
+    <article class="glass-card p-6 sm:p-8 rounded-3xl flex flex-col gap-4 border-l-4 border-l-amber-500">
+      <div class="flex items-center gap-3">
+        <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 font-black flex items-center justify-center font-mono text-sm">2</span>
+        <h2 class="text-lg sm:text-xl font-bold text-white">¿Qué Ocurre Matemáticamente si $d = 1$ (Sin Amortiguamiento)?</h2>
+      </div>
+      <p class="text-sm text-slate-300 leading-relaxed">
+        Si intentamos resolver el sistema puro $\vec{r} = M\vec{r} \iff (I - M)\vec{r} = \vec{0}$:
+      </p>
+
+      <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 font-mono text-center text-xs sm:text-sm">
+        $$(I - M) = \begin{pmatrix}
+        1 & 0 & 0 & 0 \\
+        -1 & 1 & 0 & 0 \\
+        0 & -1 & 1 & -1 \\
+        0 & 0 & -1 & 1
+        \end{pmatrix}$$
+      </div>
+
+      <div class="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-200 flex flex-col gap-2 font-mono">
+        <div>
+          <strong>Cálculo del Determinante:</strong>
+          $$\det(I - M) = 1 \cdot 1 \cdot (1 \cdot 1 - (-1)(-1)) = 1 \cdot (1 - 1) = \mathbf{0}$$
+        </div>
+        <p class="font-sans leading-relaxed text-slate-300">
+          💥 <strong>Colapso Numérico:</strong> La matriz es <strong class="text-rose-400">singular e imposible de invertir por métodos directos como LU sin pivotaje</strong>. En términos de Gauss-Seidel, las páginas $P_1$ y $P_2$ se drenan hasta $0\%$, y $\{P_3, P_4\}$ absorben el $100\%$ del tráfico ($r_3 = 50\%$, $r_4 = 50\%$).
+        </p>
+      </div>
+    </article>
+
+    <!-- PASO 3: EL FACTOR D RESCATA LA RED -->
+    <article class="glass-card p-6 sm:p-8 rounded-3xl flex flex-col gap-4 border-l-4 border-l-emerald-500">
+      <div class="flex items-center gap-3">
+        <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 font-black flex items-center justify-center font-mono text-sm">3</span>
+        <h2 class="text-lg sm:text-xl font-bold text-white">La Salvación Numérica: Inyección del Factor $d = 0{,}85$</h2>
+      </div>
+      <p class="text-sm text-slate-300 leading-relaxed">
+        El 15% de teletransporte aleatorio ($1 - d = 0{,}15$) inyecta un término independiente constante $b_i = \frac{0{,}15}{4} = 0{,}0375$ en todos los nodos:
+      </p>
+
+      <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 font-mono text-center text-xs sm:text-sm">
+        $$A = I - 0{,}85 \cdot M = \begin{pmatrix}
+        1 & 0 & 0 & 0 \\
+        -0{,}85 & 1 & 0 & 0 \\
+        0 & -0{,}85 & 1 & -0{,}85 \\
+        0 & 0 & -0{,}85 & 1
+        \end{pmatrix}$$
+      </div>
+
+      <div class="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-200 flex flex-col gap-2 font-mono">
+        <div>
+          <strong>Nuevo Determinante de $A$:</strong>
+          $$\det(A) = 1 \cdot 1 \cdot (1 \cdot 1 - (-0{,}85)(-0{,}85)) = 1 - 0{,}7225 = \mathbf{0{,}2775} \neq \mathbf{0}$$
+        </div>
+        <p class="font-sans leading-relaxed text-slate-200">
+          ✨ <strong>¡Milagro del Análisis Numérico!</strong> Al ser $\det(A) = 0{,}2775 > 0$, la matriz es **estrictamente no singular, invertible y diagonal dominante**. El agujero negro se rompe porque con un $15\%$ de probabilidad el navegante escapa de $\{P_3, P_4\}$ y reaparece en cualquier parte de la red.
+        </p>
+      </div>
+    </article>
+
+    <!-- PASO 4: CÁLCULOS EXACTOS DE LAS SOLUCIONES -->
+    <article class="glass-card p-6 sm:p-8 rounded-3xl flex flex-col gap-4 border-l-4 border-l-sky-500">
+      <div class="flex items-center gap-3">
+        <span class="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-400 font-black flex items-center justify-center font-mono text-sm">4</span>
+        <h2 class="text-lg sm:text-xl font-bold text-white">Resolución Analítica Inmediata (Sustitución Triangular)</h2>
+      </div>
+      <p class="text-sm text-slate-300 leading-relaxed">
+        Gracias a la estructura casi triangular de $A$, podemos resolver las dos primeras incógnitas a mano en segundos:
+      </p>
+
+      <div class="flex flex-col gap-3 font-mono text-xs sm:text-sm bg-slate-900/90 p-5 rounded-2xl border border-slate-800">
+        <div class="p-3 rounded-xl bg-slate-800/40 border border-slate-700/50">
+          <span class="text-sky-400 font-bold block mb-1">Ecuación 1 para $P_1$:</span>
+          $$1 \cdot r_1 = b_1 \implies r_1 = \mathbf{0{,}0375} \quad (3{,}75\%)$$
+          <span class="text-slate-400 text-xs font-sans block mt-1">
+            $P_1$ no desaparece: mantiene un 3,75% de PageRank gracias a los saltos aleatorios.
+          </span>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-800/40 border border-slate-700/50">
+          <span class="text-sky-400 font-bold block mb-1">Ecuación 2 para $P_2$:</span>
+          $$-0{,}85 \cdot r_1 + 1 \cdot r_2 = b_2 \implies r_2 = 0{,}0375 + 0{,}85 \cdot (0{,}0375) = \mathbf{0{,}069375} \quad (6{,}94\%)$$
+        </div>
+
+        <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30">
+          <span class="text-amber-400 font-bold block mb-1">Ecuaciones 3 y 4 para la Trampa $\{P_3, P_4\}$:</span>
+          $$\begin{cases}
+          r_3 - 0{,}85 \cdot r_4 = 0{,}0375 + 0{,}85 \cdot (0{,}069375) = 0{,}09647 \\
+          -0{,}85 \cdot r_3 + r_4 = 0{,}0375
+          \end{cases}$$
+          Resolviendo el sistema $2 \times 2$:
+          $$r_3 \approx \mathbf{0{,}4625} \quad (46{,}25\%) \qquad r_4 \approx \mathbf{0{,}4306} \quad (43{,}06\%)$$
+        </div>
+      </div>
+    </article>
+
+    <!-- PASO 5: CONCLUSIÓN DE INGENIERÍA -->
+    <article class="glass-card p-6 sm:p-8 rounded-3xl flex flex-col gap-4 border-l-4 border-l-amber-400">
+      <div class="flex items-center gap-3">
+        <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 font-black flex items-center justify-center font-mono text-sm">5</span>
+        <h2 class="text-lg sm:text-xl font-bold text-white">Veredicto Final: ¿Por qué este caso es vital en la defensa oral?</h2>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200 leading-relaxed">
+        🎓 <strong>Argumento Irrefutable ante el Jurado:</strong>  
+        Si el tribunal docente pregunta: <em>«¿Por qué Larry Page no usó simplemente la matriz de adyacencia de grafos?»</em>, la respuesta técnica es este caso: sin el factor $d = 0{,}85$, cualquier par de páginas web creadas por un spamer apuntándose entre sí atraparía toda la autoridad de internet. El factor $d$ garantiza la <strong>irreducibilidad estocástica</strong> de la matriz de Markov y la <strong>dominancia diagonal estricta</strong> que permite a Gauss-Seidel converger sin importar la malicia de la red.
+      </div>
+
+      <div class="pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-4">
+        <a href="efecto-hub.html" class="text-xs text-slate-400 hover:text-white font-mono flex items-center gap-1.5">
+          <span>&larr; Volver al Caso 2</span>
+        </a>
+        <a href="red-4-paginas.html" class="inline-flex items-center gap-2 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-lg transition-all">
+          <span>Volver al Caso 1: Red Canónica</span>
+          <span>&circlearrowright;</span>
+        </a>
+      </div>
+    </article>
+
+  </main>
+
+  <footer class="border-t border-slate-800/80 py-4 text-center text-xs text-slate-500 font-mono">
+    Cátedra F • Taller de Métodos Numéricos • Ciclo Lectivo 2026-2 • Exposición de Proyecto Integrador
+  </footer>
+
+</body>
+</html>
