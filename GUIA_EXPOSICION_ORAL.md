@@ -1,6 +1,6 @@
 # 🎓 GUÍA MAESTRA DE DEFENSA ORAL: PAGERANK Y MÉTODOS NUMÉRICOS
-**Cátedra de Taller de Métodos Numéricos • Ciclo Lectivo 2026-2**  
-*Documento Estratégico y Guion de Ensayo para Equipo de 3 Integrantes (15 Minutos Totales)*
+**Cátedra F • Taller de Métodos Numéricos • Ciclo Lectivo 2026-2**  
+*Equipo: Augusto Garcia, Mateo Garcia, Joaquin Marmol • Guion Estratégico de Ensayo (15 Minutos Totales)*
 
 ---
 
@@ -60,7 +60,7 @@ Mientras un compañero expone:
 
 ---
 
-### 👤 INTEGRANTE 1: EL NARRADOR DISRUPTIVO (Minutos 00:00 a 05:00)
+### 👤 INTEGRANTE 1: AUGUSTO GARCIA — EL NARRADOR E INTRODUCTOR (Minutos 00:00 a 05:00)
 
 > **Misión:** Romper el hielo, enganchar al jurado con la historia real de la crisis de internet en 1996, y plantar la duda existencial que da origen al algoritmo.
 
@@ -78,9 +78,10 @@ Mientras un compañero expone:
 #### c) Guion sugerido y "Ganchos" para atrapar la atención
 
 ##### 🎬 Slide 1 (Minuto 00:00 - 01:00) — Apertura y Portada
-* **Cómo arrancar:** (Voz firme, sonrisa, mirando a los ojos del jurado):
-  > *«Buenos días, profesores y compañeros. Hoy les queremos hacer una pregunta que cambió la historia de la tecnología: **¿Cómo dos estudiantes universitarios trabajando en un dormitorio desordenado lograron poner en orden a todo internet?**  
-  > Somos el Grupo [Número/Nombre], y para nuestro Proyecto Integrador del Taller de Métodos Numéricos decidimos abordar no un ejercicio de juguete, sino el caso de estudio real más influyente del siglo XXI: **el algoritmo PageRank de Google**, resolviendo la tensión matemática entre un método directo monumental como la Factorización LU y el equilibrio iterativo de Gauss-Seidel.»*
+* **Cómo arrancar:** (Voz firme, postura erguida, mirando a los ojos del jurado):
+  > *«Buenos días, profesores y compañeros. Bienvenidos a la defensa de nuestro Proyecto Integrador para la **Cátedra F del Taller de Métodos Numéricos**.  
+  > Nuestro equipo está integrado por **Augusto Garcia, Mateo Garcia y Joaquin Marmol**, y hoy les presentamos: **'La Arquitectura Matemática de la Web: Modelado y Resolución Numérica del Algoritmo PageRank'**.  
+  > Nuestro objetivo no fue resolver un problema de juguete, sino analizar con rigor cómo el álgebra matricial y el análisis numérico transformaron el flujo caótico de hipervínculos en un sistema lineal determinista $A\vec{r} = \vec{b}$, contrastando la convergencia iterativa de **Gauss-Seidel** frente a la precisión y los límites computacionales de la **Factorización LU**.»*
 
 ##### 🚨 Slide 2 (Minuto 01:00 - 03:00) — El Caos de 1996 y el Spam
 * **Gancho de storytelling:**
@@ -98,11 +99,11 @@ Mientras un compañero expone:
 
 #### d) Frase exacta de pase de posta al Integrante 2 (Minuto 04:45 - 05:00)
 > *«Pero justo aquí aparece una trampa matemática aparentemente imposible: para saber cuánto vale el voto de una página, necesito saber cuánto valen quienes la votan a ella... y para saber cuánto valen ellos, ¡necesito saber quién los vota a ellos!  
-> Para contarnos cómo los Métodos Numéricos resuelven esta paradoja circular con la elegancia del agua, le paso la palabra a mi compañero [Nombre de Integrante 2].»*
+> Para contarnos cómo los Métodos Numéricos resuelven esta paradoja circular con la elegancia del agua, le paso la palabra a mi compañero **Mateo Garcia**.»*
 
 ---
 
-### 👤 INTEGRANTE 2: EL ARQUITECTO MATEMÁTICO (Minutos 05:00 a 10:00)
+### 👤 INTEGRANTE 2: MATEO GARCIA — EL ARQUITECTO MATEMÁTICO (Minutos 05:00 a 10:00)
 
 > **Misión:** Explicar la paradoja circular con la analogía física de los vasos comunicantes, introducir el factor humano $d = 0{,}85$ sin saturar de fórmulas áridas, y demostrar con soltura por qué Gauss-Seidel tiene el éxito garantizado.
 
@@ -157,11 +158,11 @@ Mientras un compañero expone:
 
 #### d) Frase exacta de pase de posta al Integrante 3 (Minuto 09:45 - 10:00)
 > *«Ahora bien: una cosa es demostrar la convergencia en el papel, y otra muy distinta es procesar miles de millones de páginas compitiendo contra un método directo como la Factorización LU.  
-> Para librar la batalla computacional y ver nuestro simulador interactivo en plena acción, le cedo la palabra a [Nombre de Integrante 3].»*
+> Para librar la batalla computacional y ver nuestro simulador interactivo en plena acción, le cedo la palabra a mi compañero **Joaquin Marmol**.»*
 
 ---
 
-### 👤 INTEGRANTE 3: EL EJECUTOR EN VIVO Y ESTRATEGA (Minutos 10:00 a 15:00)
+### 👤 INTEGRANTE 3: JOAQUIN MARMOL — EL EJECUTOR EN VIVO Y ESTRATEGA (Minutos 10:00 a 15:00)
 
 > **Misión:** Comparar la complejidad de LU vs Gauss-Seidel con argumentos de ingeniería de software, liderar la demostración en vivo interactuando con el simulador web, presentar los aprendizajes y abrir con autoridad la ronda de preguntas.
 

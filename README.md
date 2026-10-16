@@ -38,7 +38,7 @@ Luego abre en tu navegador:
 ### 2. 📽️ Modo Exposición Oral (Enfoque Storytelling y Divulgación)
 - **9 Diapositivas Estructuradas en 4 Actos Narrativos**:
   - **🎬 Acto 1: El Problema (Min 0 a 4 - Diapositivas 1-3)**:
-    - *Slide 1 (Portada de Película)*: "¿Cómo dos estudiantes en un dormitorio ordenaron todo internet?". Datos de cátedra (Ciclo 2026-2) y creadores.
+    - *Slide 1 (Portada y Presentación)*: "La Arquitectura Matemática de la Web: Modelado y Resolución Numérica de PageRank". Cátedra F (Taller de Métodos Numéricos) e Integrantes: Augusto Garcia, Mateo Garcia, Joaquin Marmol.
     - *Slide 2 (Internet en 1996)*: El caos de Yahoo! y Altavista, la trampa del spam en texto blanco, y el cambio de paradigma hacia la red social de hipervínculos.
     - *Slide 3 (La Idea Genial)*: Inspiración en la bibliometría académica y citas científicas. El hipervínculo como voto democrático de confianza y el dilema de ponderación de votos.
   - **🧠 Acto 2: La Intuición Numérica (Min 4 a 8 - Diapositivas 4-5)**:
