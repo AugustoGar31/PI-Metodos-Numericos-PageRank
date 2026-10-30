@@ -1,102 +1,92 @@
-# PageRank: Modelado Numérico en Ingeniería (Gauss-Seidel vs Factorización LU)
-**Proyecto Integrador • Taller de Métodos Numéricos (Ciclo 2026-2)**
+# Proyecto Integrador — Algoritmo PageRank con Métodos Numéricos
 
-Sistema web interactivo y pedagógico bajo **arquitectura dual**:
-1. 🔬 **Modo Laboratorio**: Simulador interactivo completo para modelar el algoritmo **PageRank de Google** como un problema canónico de resolución de sistemas de ecuaciones lineales $A \cdot \vec{r} = \vec{b}$, contrastando el método iterativo de **Gauss-Seidel** con el método directo de **Factorización LU (Doolittle)** sobre grafos de páginas web en tiempo real.
-2. 📽️ **Modo Exposición Oral (15 Minutos)**: Presentación interactiva de 9 diapositivas cinematográficas diseñada específicamente para la defensa oral del proyecto ante el jurado docente, con renderizado matemático vectorial de alta fidelidad mediante **KaTeX**.
+**Universidad Católica de Córdoba • Facultad de Ingeniería**  
+**Materia:** Taller de Métodos Numéricos (2.° Año — Ingeniería en Informática, Ciclo 2026-2)
+
+**Integrantes del grupo:**
+- Augusto García Lalliya (2509312)
+- Mateo García (2527199)
+- Joaquín Mármol (2514908)
 
 ---
 
-## 🚀 Cómo Ejecutar la Aplicación
+## 📌 ¿De qué trata este proyecto?
 
-No se requieren compiladores pesados ni dependencias de backend.
+En este trabajo analizamos y resolvemos cómo funciona el algoritmo **PageRank** (el que usó originalmente Google para ordenar páginas web por importancia) llevándolo a un sistema de ecuaciones lineales de la forma **$A \cdot r = b$**.
 
-### Servidor Local (Recomendado para ES6 Modules)
-En una terminal en la carpeta del proyecto, ejecuta:
+La idea principal es entender cómo los enlaces entre páginas funcionan como "votos de confianza" y comparar dos métodos que vimos en la materia para resolver el sistema:
+1. **Factorización LU de Doolittle (Método Directo):** descompone la matriz en dos triangulares ($L$ y $U$) para encontrar la solución exacta en una cantidad fija de pasos.
+2. **Método de Gauss-Seidel (Método Iterativo):** arranca con un vector inicial y va aproximando el resultado vuelta tras vuelta hasta que el error sea menor a la tolerancia fijada ($\varepsilon$).
+
+Además del desarrollo en papel, armamos una **aplicación web interactiva** para simular redes en vivo, ver las tablas de cálculo y usarla como soporte durante nuestra **presentación oral de 10 minutos**.
+
+---
+
+## 💻 ¿Qué incluye la aplicación web?
+
+La página está dividida en dos modos que se pueden alternar con un clic arriba a la derecha:
+
+### 1. 🔬 Modo Laboratorio (Simulador Numérico)
+Es el espacio para probar el modelo y ver todas las cuentas:
+- **Editor de grafos en vivo:** podés agregar o borrar páginas y flechas a mano, o cargar casos ya armados (*Caso de estudio de 4 nodos*, *Red Estrella/Hub*, *Spider Trap* o *Red Aleatoria*). Al calcular, los nodos se agrandan según el ranking que obtuvieron.
+- **Matrices paso a paso:** muestra cómo queda armada la matriz de transición $M$, la matriz del sistema $A = I - d \cdot M$ y el vector independiente $b$.
+- **Tabla de Gauss-Seidel:** muestra iteración por iteración cómo van cambiando los valores de cada nodo ($r_i$) y cómo baja el error aproximado $|E_i|$ hasta converger (también permite descargar la tabla en CSV).
+- **Resolución por LU:** muestra las matrices $L$ y $U$, la sustitución hacia adelante ($L \cdot y = b$) y la sustitución hacia atrás ($U \cdot r = y$).
+- **Comparación y gráficos:** compara el tiempo de cálculo y la memoria que usa cada método, junto con el gráfico de caída del error en cada iteración.
+
+### 2. 📽️ Modo Exposición Oral (Presentación de 10 minutos)
+Para no usar un PowerPoint aparte, integramos las diapositivas dentro de la misma web pensadas para una **defensa oral de 10 minutos**:
+- **Parte 1 — El problema y la idea de Google (~3 min):** cómo buscaban las páginas en 1996, el problema del spam de palabras clave y cómo llevar los enlaces de una red a la matriz de transición $M$.
+- **Parte 2 — El modelo matemático y la convergencia (~3 min):** el problema de las trampas de enlaces (*Spider Traps*), el factor del navegante aleatorio ($d = 0,85$), cómo se despeja el sistema $A \cdot r = b$ y por qué la dominancia diagonal asegura que Gauss-Seidel siempre converja.
+- **Parte 3 — Prueba en vivo y LU vs. Gauss-Seidel (~4 min):** botón directo para saltar al simulador, probar el caso de 4 nodos en vivo, comparar ambos métodos y cerrar con las conclusiones sobre por qué en redes gigantes conviene usar métodos iterativos.
+
+---
+
+## 🧮 Resumen rápido de las fórmulas
+
+1. **Matriz de transición ($M$):** cada columna $j$ reparte su peso en partes iguales entre sus enlaces salientes ($1 / L_j$). Si una página no tiene enlaces de salida (*nodo sin salida*), se reparte $1 / N$ a toda la red.
+2. **Factor de amortiguamiento ($d = 0,85$):** representa que el usuario sigue enlaces el 85 % de las veces y el 15 % restante salta al azar a cualquier página de la red.
+3. **Sistema lineal ($A \cdot r = b$):**
+   $$(I - d \cdot M) \cdot r = \frac{1 - d}{N} \cdot \mathbf{1}$$
+   Donde $A = I - d \cdot M$ es la matriz de coeficientes, $r$ es el vector de rankings que buscamos y $b$ es el vector constante de salto aleatorio.
+
+---
+
+## 🚀 Cómo abrir el proyecto en tu computadora
+
+No hace falta instalar nada pesado. Como el código está separado en módulos de JavaScript, lo ideal es abrirlo con un servidor local simple desde la carpeta del proyecto:
+
 ```bash
-# Con Python 3
+# Opción 1: Si tenés Python instalado
 python -m http.server 8080
 
-# O con Node.js / npx
+# Opción 2: Si tenés Node.js instalado
 npx serve .
 ```
-Luego abre en tu navegador:
-👉 **[http://localhost:8080/pagerank-numerico/index.html](http://localhost:8080/pagerank-numerico/index.html)** (o simplemente `http://localhost:8080`)
+
+Después entrás desde el navegador a:  
+👉 **[http://localhost:8080/pagerank-numerico/index.html](http://localhost:8080/pagerank-numerico/index.html)**
+
+*(También podés abrirlo con la extensión **Live Server** de VS Code haciendo clic derecho en `pagerank-numerico/index.html` → "Open with Live Server").*
 
 ---
 
-## 🏛️ Arquitectura Dual del Sistema
+## 📂 Organización de las carpetas
 
-### 1. 🔬 Modo Laboratorio Numérico
-- **Manipulación de Grafos**: Interfaz interactiva mediante Vis-Network para agregar/eliminar páginas y enlaces dirigidos.
-- **Escalado Dinámico**: El radio de cada nodo y su color en gradiente térmico (Cyan $\to$ Violeta $\to$ Oro) reflejan en tiempo real su puntaje de PageRank.
-- **Inspección Matricial**: Visualizador interactivo de la matriz estocástica $M$, la matriz del sistema $A = I - d \cdot M$ y el vector $\vec{b} = \frac{1-d}{N} \mathbf{1}$.
-- **Gauss-Seidel Paso a Paso**: Tabla de iteraciones idéntica al formato de cursado con componentes $r_i$ y errores absolutos individuales $|E_i| = |r_i^{(k+1)} - r_i^{(k)}|$, junto a botón de exportación en **CSV**.
-- **Factorización LU (Doolittle)**: Descomposición $A = L \cdot U$ con $\text{diag}(L) = 1$, sustitución hacia adelante $L \vec{y} = \vec{b}$ y sustitución hacia atrás $U \vec{r} = \vec{y}$.
-- **Comparador y Gráficos Chart.js**: Comparación de complejidad, residuo cuadrático $\|A\vec{r} - \vec{b}\|_2$, tiempo en milisegundos y curvas de convergencia logarítmica $\log_{10}(|E|)$.
-
-### 2. 📽️ Modo Exposición Oral (Enfoque Storytelling y Divulgación)
-- **9 Diapositivas Estructuradas en 4 Actos Narrativos**:
-  - **🎬 Acto 1: El Problema (Min 0 a 4 - Diapositivas 1-3)**:
-    - *Slide 1 (Portada y Presentación)*: "La Arquitectura Matemática de la Web: Modelado y Resolución Numérica de PageRank". Cátedra F (Taller de Métodos Numéricos) e Integrantes: Augusto Garcia, Mateo Garcia, Joaquin Marmol.
-    - *Slide 2 (Internet en 1996)*: El caos de Yahoo! y Altavista, la trampa del spam en texto blanco, y el cambio de paradigma hacia la red social de hipervínculos.
-    - *Slide 3 (La Idea Genial)*: Inspiración en la bibliometría académica y citas científicas. El hipervínculo como voto democrático de confianza y el dilema de ponderación de votos.
-  - **🧠 Acto 2: La Intuición Numérica (Min 4 a 8 - Diapositivas 4-5)**:
-    - *Slide 4 (La Paradoja del Huevo y la Gallina)*: Trampa circular resuelta con Métodos Numéricos. **La Analogía del Agua y los Vasos Comunicantes** (nivel inicial parejo, canillas abiertas y equilibrio estacionario).
-    - *Slide 5 (El "Navegante Aburrido")*: Evitando agujeros negros (*Spider Traps*) con el factor $d = 0{,}85$. La única fórmula conceptual: $\text{Importancia} = (15\% \text{ Azar}) + (85\% \text{ Votos Recibidos})$.
-  - **🎮 Acto 3: Demostración en Vivo (Min 8 a 12 - Diapositiva 6)**:
-    - Presentación interactiva de casos de estudio (4 Nodos, Efecto Hub, Trampa Rota) y botón gigante `[ 🚀 Saltar al Laboratorio y Simular ]` para alternar fluidamente al simulador numérico y volver con un clic.
-  - **⚖️ Acto 4: La Batalla Numérica y Cierre (Min 12 a 15 - Diapositivas 7-9)**:
-    - *Slide 7 (La Batalla)*: ¿Fuerza bruta matricial ($\text{LU}$ en $\mathcal{O}(N^2)$ memoria RAM imposible en la web masiva) o equilibrio natural de fluidos ($\text{Gauss-Seidel}$ en $\mathcal{O}(N)$ autocorrección escalable a nivel planetario)?
-    - *Slide 8 (Aprendizajes de Ingeniería)*: De la realidad al sistema $A\vec{r}=\vec{b}$, valor de los métodos iterativos en Big Data, control con criterio de parada $E_a < \varepsilon$ y nota de transparencia académica.
-    - *Slide 9 (Cierre y Agradecimiento)*: "¡Muchas Gracias por su Atención! Esperamos que les haya gustado", con enlace directo al Repositorio de GitHub.
-- **Renderizado Matemático KaTeX**: Expresiones nítidas, limpias y sin sobrecarga innecesaria en pantalla.
-- **Control por Teclado y Pantalla Completa**: Navegación ágil con flechas `← / →`, barra espaciadora y modo proyector.
-
-> 📖 **Guía de Exposición y Ensayo para el Equipo:**  
-> Consulta [`GUIA_EXPOSICION_ORAL.md`](./GUIA_EXPOSICION_ORAL.md) para el reparto exacto de los 15 minutos en 3 integrantes, guiones con storytelling, ganchos de atención, pases de posta y el banco de respuestas a preguntas del jurado docente.
-
----
-
-## 📐 Formulación Matemática del Modelo
-
-### 1. Matriz de Transición Estocástica ($M$)
-Dada una red de $N$ nodos:
-$$M_{ij} = \begin{cases} \dfrac{1}{L_j} & \text{si existe enlace } j \to i \\ \dfrac{1}{N} & \text{si } L_j = 0 \text{ (dangling node)} \end{cases}$$
-
-### 2. Formulación Canónica del Sistema Lineal
-Incorporando el factor de amortiguamiento $d = 0{,}85$:
-$$\vec{r} = d \cdot M \vec{r} + \left(\frac{1 - d}{N}\right) \mathbf{1} \iff (I - d \cdot M) \vec{r} = \left(\frac{1 - d}{N}\right) \mathbf{1}$$
-
-Definiendo:
-$$A = I - d \cdot M \qquad \text{y} \qquad \vec{b} = \left(\frac{1 - d}{N}\right) \mathbf{1}$$
-
-Se obtiene:
-$$A \cdot \vec{r} = \vec{b}$$
-
-### 3. Garantía Teórica de Convergencia
-Como las columnas de $M$ suman 1:
-$$|a_{jj}| - \sum_{i \ne j} |a_{ij}| = (1 - d M_{jj}) - d(1 - M_{jj}) = 1 - d > 0$$
-La matriz $A$ es **estrictamente diagonal dominante por columnas** con margen garantizado de al menos $1 - d = 0{,}15 > 0$, y el radio espectral de Gauss-Seidel cumple $\rho(T_{GS}) \le d < 1$. Por lo tanto, Gauss-Seidel tiene **convergencia incondicional garantizada** para cualquier vector inicial $\vec{r}^{(0)}$.
-
----
-
-## 📂 Estructura de Archivos
-
-```
+```text
 pagerank-numerico/
-├── index.html                   # Interfaz dual: Simulador y Exposición Oral
+├── index.html                     # Página principal (Laboratorio + Presentación)
 ├── css/
-│   └── styles.css               # Estilos modernos, KaTeX, diapositivas y cronómetro
+│   └── styles.css                 # Estilos de la interfaz y las diapositivas
 └── js/
     ├── math/
-    │   ├── matrix.js            # Álgebra lineal, normas, dominancia y formulación
-    │   ├── gaussSeidel.js       # Solucionador iterativo con tabla e historial |Ei|
-    │   └── lu.js                # Factorización LU Doolittle y sustituciones
+    │   ├── matrix.js              # Armado de las matrices M, A y vector b
+    │   ├── gaussSeidel.js         # Algoritmo de Gauss-Seidel y tabla de errores
+    │   └── lu.js                  # Algoritmo de Factorización LU (Doolittle)
     ├── graph/
-    │   ├── presets.js           # Grafos predefinidos (Cátedra 4 nodos, Hub, Spider Trap, etc.)
-    │   └── graphManager.js      # Controlador de Vis-Network y escalado térmico
+    │   ├── presets.js             # Redes de prueba (4 nodos, Hub, Spider Trap)
+    │   └── graphManager.js        # Dibujo interactivo del grafo con Vis-Network
     ├── presentation/
-    │   └── presentationManager.js # Gestor de diapositivas, cronómetro 15 min y KaTeX
-    └── app.js                   # Controlador global, orquestador de vistas y gráficos
+    │   └── presentationManager.js # Manejo de diapositivas y cronómetro de exposición
+    └── app.js                     # Conecta los botones, tablas y gráficos en pantalla
 ```

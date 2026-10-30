@@ -139,7 +139,7 @@ export class PresentationManager {
         this.slideBlockBadge.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5 animate-pulse';
         this.slideBlockBadge.innerHTML = '<span>🎮 Acto 3: ¡Demostración en Vivo en el Laboratorio!</span>';
       } else {
-        // Slides 7, 8, 9 -> Acto 4: Batalla Numérica y Conclusiones
+        // Slides 7-10 -> Acto 4: Batalla Numérica, Validación y Conclusiones
         this.slideBlockBadge.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center gap-1.5';
         this.slideBlockBadge.innerHTML = '<span>⚖️ Acto 4: La Batalla Numérica y Conclusiones</span>';
       }

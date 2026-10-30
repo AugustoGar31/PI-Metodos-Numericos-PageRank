@@ -85,6 +85,8 @@ class PageRankApp {
     this.btnFitNetwork = document.getElementById('btn-fit-network');
     this.togglePhysics = document.getElementById('toggle-physics');
     this.rankingSummaryBar = document.getElementById('ranking-summary-bar');
+    this.btnShowExpectedResult = document.getElementById('btn-show-expected-result');
+    this.expectedResultPanel = document.getElementById('expected-result-panel');
 
     // Tabs Bottom
     this.tabBtnGs = document.getElementById('tab-btn-gs');
@@ -239,6 +241,10 @@ class PageRankApp {
 
     this.togglePhysics.addEventListener('change', (e) => {
       this.graphManager.setPhysics(e.target.checked);
+    });
+
+    this.btnShowExpectedResult.addEventListener('click', () => {
+      this.showExpectedResult();
     });
 
     // Bottom Result Tabs
@@ -510,6 +516,7 @@ class PageRankApp {
     this.renderComparisonTable(gsResult, luResult, nodeLabels);
     this.renderCharts(gsResult, luResult, nodeLabels);
     this.renderRankingSummaryBar(luResult.solution, nodeLabels);
+    this.renderExpectedResult(luResult.solution, nodeLabels);
   }
 
   /**
@@ -798,6 +805,54 @@ class PageRankApp {
     });
 
     this.rankingSummaryBar.innerHTML = html;
+  }
+
+  /**
+   * Prepara la interpretación del resultado actual para mostrarla bajo demanda.
+   */
+  renderExpectedResult(scores, labels) {
+    const indexed = scores
+      .map((score, index) => ({ score, label: labels[index] }))
+      .sort((a, b) => b.score - a.score);
+    const leader = indexed[0];
+    const runnerUp = indexed[1];
+    const preset = PRESETS[this.currentPresetKey];
+    const description = preset ? preset.description : 'Esta red fue creada o modificada en el laboratorio.';
+
+    let explanation = `En este caso, <strong class="text-emerald-300">${leader.label}</strong> queda primero con ${(leader.score * 100).toFixed(2)}% del PageRank`;
+    if (runnerUp) {
+      explanation += `, seguido por <strong class="text-sky-300">${runnerUp.label}</strong> con ${(runnerUp.score * 100).toFixed(2)}%`;
+    }
+    explanation += '. ';
+
+    if (this.currentPresetKey === 'starHub') {
+      explanation += 'Es el resultado esperado: el hub recibe enlaces desde varias páginas y concentra autoridad.';
+    } else if (this.currentPresetKey === 'spiderTrap') {
+      explanation += 'La trampa conserva influencia, pero el teletransporte evita que absorba toda la probabilidad.';
+    } else if (this.currentPresetKey === 'danglingNode') {
+      explanation += 'El nodo sin salidas no rompe el modelo: sus enlaces faltantes se redistribuyen uniformemente.';
+    } else if (this.currentPresetKey === 'linearPipeline') {
+      explanation += 'La estructura cíclica reparte la autoridad de forma relativamente equilibrada entre los nodos.';
+    } else {
+      explanation += 'La posición surge del equilibrio entre cuántos enlaces recibe cada página y la autoridad de quienes la enlazan.';
+    }
+
+    this.expectedResultPanel.innerHTML = `
+      <strong class="text-white">Qué debería observarse:</strong> ${explanation}
+      <span class="block mt-1 text-slate-400">${description}</span>
+    `;
+  }
+
+  showExpectedResult() {
+    if (!this.currentLUResult || !this.currentSystem) {
+      alert('Primero ejecutá el cálculo de PageRank para interpretar el resultado.');
+      return;
+    }
+
+    this.expectedResultPanel.classList.toggle('hidden');
+    if (!this.expectedResultPanel.classList.contains('hidden')) {
+      this.expectedResultPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
   }
 
   /**

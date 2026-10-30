@@ -168,13 +168,14 @@ Mientras un compañero expone:
 
 #### a) Diapositivas a cargo
 - **Slide 6:** La Batalla Numérica: Factorización LU vs Gauss-Seidel (Complejidad y memoria).
-- **Slide 8:** ¡A Verlo en Acción! (Salto en vivo al laboratorio interactivo).
+- **Slide 8:** Validación numérica: suma de probabilidades, residuo y acuerdo entre métodos.
 - **Slide 9:** Aprendizajes de Ingeniería, Transparencia Académica y Preguntas del Tribunal.
+- **Slide 10:** Cierre y agradecimiento.
 
 #### b) Lo que debe dominar sí o sí (Territorio técnico ante el jurado)
 - **Comparación de Complejidad (Big-O):**
   - **Factorización LU:** Requiere descomponer $A = L \cdot U$. En tiempo es $\mathcal{O}(N^3)$ operaciones de punto flotante, y en memoria RAM requiere almacenar la matriz completa densa $\mathcal{O}(N^2)$.
-  - **Gauss-Seidel:** En memoria solo necesita almacenar el vector de soluciones actual y la lista dispersa de aristas ($\mathcal{O}(N + |E|)$). En tiempo requiere $\mathcal{O}(k \cdot |E|)$, donde $k$ es el número de iteraciones (habitualmente menos de 20-30 rondas para $\varepsilon = 10^{-5}$).
+  - **Gauss-Seidel:** En una matriz densa cuesta $\mathcal{O}(k \cdot N^2)$, pero una implementación dispersa puede recorrer solo las aristas y alcanzar $\mathcal{O}(k \cdot |E|)$. Requiere $\mathcal{O}(N)$ memoria adicional para el vector, además de la estructura de la matriz o del grafo.
 - **Por qué LU es inviable para la Big Data real:** Si la web tiene $N = 10^{10}$ páginas, una matriz de $10^{10} \times 10^{10}$ necesitaría $10^{20}$ números flotantes (cientos de exabytes de RAM). ¡No existe hardware en el planeta que soporte eso! Gauss-Seidel, en cambio, calcula elemento por elemento actualizando en el lugar (*in-place*).
 - **Criterio de Parada Ingenieril:** El algoritmo se detiene cuando el máximo error absoluto entre iteraciones consecutivas cae por debajo de la tolerancia fijada:
   $$\max_{i} |E_i| = \max_{i} |r_i^{(k+1)} - r_i^{(k)}| < \varepsilon = 10^{-5}$$
@@ -186,11 +187,11 @@ Mientras un compañero expone:
 * **Cómo arrancar:**
   > *«Muchas gracias, [Nombre 2]. Cuando nos enfrentamos al sistema $A\vec{r} = \vec{b}$, como ingenieros tenemos dos caminos en la caja de herramientas:  
   > 1. **La Fuerza Bruta Directa con Factorización LU:** Intentar descomponer $A = L \cdot U$ para resolver el sistema de un solo golpe monumental.  
-  > Para un grafo chico de 4 o 10 páginas, LU es fabuloso y matemáticamente exacto. Pero tiene un talón de Aquiles letal: su costo espacial de memoria es de orden $\mathcal{O}(N^2)$. Para los miles de millones de páginas de la web real, ninguna supercomputadora del mundo tiene tanta memoria RAM para guardar esa matriz.  
-  > 2. **El Equilibrio Natural de Gauss-Seidel:** Es el método ganador indiscutido. Gasta memoria mínima de orden $\mathcal{O}(N)$, aprovecha que casi todas las páginas tienen enlaces dispersos, y actualiza los valores inmediatamente vaso por vaso.  
+  > Para un grafo chico de 4 o 10 páginas, LU es fabuloso y matemáticamente exacto. Pero tiene un talón de Aquiles letal: su costo temporal es $\mathcal{O}(N^3)$ y los factores pueden ocupar $\mathcal{O}(N^2)$ memoria. Para los miles de millones de páginas de la web real, ninguna supercomputadora del mundo tiene tanta memoria RAM para guardar esa matriz densa.
+  > 2. **El Equilibrio Natural de Gauss-Seidel:** En una matriz densa cuesta $\mathcal{O}(k\cdot N^2)$, pero cuando se aprovecha la dispersión del grafo puede trabajar en $\mathcal{O}(k\cdot |E|)$ por iteración y usar solo $\mathcal{O}(N)$ memoria adicional. Actualiza los valores inmediatamente, vaso por vaso.
   > Si un servidor se reinicia o cambia un enlace, Gauss-Seidel no tiene que recalcular todo desde cero como LU: simplemente continúa iterando desde el último estado conocido.»*
 
-##### 🚀 Slide 8 (Minuto 11:15 - 13:15) — ¡Demostración en Vivo en el Laboratorio!
+##### 🚀 Slide 8 (Minuto 11:15 - 12:15) — Validación y demostración en el Laboratorio
 * **Acción en el proyector:** (El expositor hace clic en el botón gigante `[ 🚀 Saltar al Laboratorio y Simular ]` o en el preset de la Slide):
   > *«Pero las palabras sobran cuando podemos ver a los números trabajar. Vamos a saltar en vivo a nuestro laboratorio interactivo desarrollado para esta presentación.*  
   > *(Señala el grafo en Vis-Network):*  
@@ -201,7 +202,7 @@ Mientras un compañero expone:
   > 2. *(Abre la pestaña 'Gauss-Seidel'):* *Aquí está la tabla paso a paso idéntica a la que hacíamos en las clases prácticas, registrando los errores individuales $|E_i|$ y confirmando que la suma total de las probabilidades da exactamente 1.000000.*  
   > *(Opcional: Si el jurado pide probar otro caso):* *Podemos cargar al instante el 'Efecto Influencer (Hub)' o la 'Spider Trap' para comprobar cómo el factor de teletransporte rescata a la red del colapso.»*
 
-##### 🎯 Slide 9 (Minuto 13:15 - 14:45) — Aprendizajes, Ética y Cierre
+##### 🎯 Slide 9 (Minuto 12:15 - 13:45) — Aprendizajes y Ética
 * **Síntesis reflexiva y cierre formal:**
   > *(Hace clic en 'Exposición Oral' en la barra superior para volver a la diapositiva final):*  
   > *«Para concluir, ¿qué nos deja este proyecto integrador como futuros profesionales?  
@@ -209,7 +210,11 @@ Mientras un compañero expone:
   > Segundo: que los métodos iterativos no son aproximaciones de 'segunda categoría' frente a los métodos directos; en la era del Big Data y la Inteligencia Artificial, son la única alternativa computacionalmente viable.  
   > Tercero: el valor del criterio de parada ingenieril, decidiendo hasta qué decimal calcular sin derrochar energía ni cómputo.  
   > Queremos destacar que el código fuente completo se encuentra disponible en nuestro repositorio de GitHub y desplegado en la web para acceso libre.  
-  > Quedamos a total disposición del tribunal docente para responder sus preguntas o para construir y simular en vivo cualquier red que los profesores deseen proponer. ¡Muchas gracias!»*
+  > Quedamos a total disposición del tribunal docente para responder sus preguntas o para construir y simular en vivo cualquier red que los profesores deseen proponer.»*
+
+##### 🎓 Slide 10 (Minuto 13:45 - 15:00) — Cierre y Preguntas
+* **Acción:** Volver a la diapositiva final con el repositorio visible.
+  > *«La validación confirma que no solo calculamos un ranking: resolvemos un sistema consistente, conservamos la probabilidad y obtenemos el mismo resultado con dos métodos numéricos. Dejamos disponible el código fuente y quedamos a disposición del tribunal. ¡Muchas gracias!»*
 
 ---
 
